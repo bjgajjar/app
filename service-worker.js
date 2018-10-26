@@ -11,10 +11,10 @@
  * See https://goo.gl/2aRDsh
  */
 
-importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.2/workbox-sw.js");
+importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "precache-manifest.66d023636283c9a951beb94eb12a8e7b.js"
+  "precache-manifest.6e3e016e6e1eb26937ea9271f8522914.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "directus"});
