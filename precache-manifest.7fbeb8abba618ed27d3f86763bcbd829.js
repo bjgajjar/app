@@ -1,27 +1,31 @@
 self.__precacheManifest = [
   {
-    "revision": "44e0a2ef806baf926fd3d43413de397e",
-    "url": "fonts/robotomono-bold.44e0a2ef.woff2"
+    "revision": "158556ec136bd5bf5340b85df3dc63c2",
+    "url": "fonts/robotomono-regular.158556ec.woff2"
   },
   {
-    "revision": "587a4f3cdd58ec2cf3df85c2f2ebbe4c",
+    "revision": "a5728e7304ed1cf86c4548cf462b6714",
     "url": "index.html"
   },
   {
-    "revision": "04fc9bf13091bc6660ee",
-    "url": "js/chunk-vendors-legacy.0300b081.js"
+    "revision": "68f1f29f98e58b9fc7c4",
+    "url": "js/chunk-vendors-legacy.b5c78ef8.js"
   },
   {
     "revision": "e5b663edc72a54a7f215",
     "url": "js/lang-de-DE-legacy.3a100e51.js"
   },
   {
+    "revision": "b24dbddc31b89e8aafa8",
+    "url": "js/lang-fr-FR-legacy.9a3adf85.js"
+  },
+  {
     "revision": "c4aa1a6aade2ee888db7",
     "url": "js/lang-nl-NL-legacy.3d81951e.js"
   },
   {
-    "revision": "5c3b8ef8e50aaf6112f1",
-    "url": "js/app-legacy.3e53a731.js"
+    "revision": "c28bf77b4d641b43a501",
+    "url": "js/app-legacy.8e051701.js"
   },
   {
     "revision": "c2b94f49a45b5fe5a35e3d2e73745ff7",
@@ -44,16 +48,16 @@ self.__precacheManifest = [
     "url": "fonts/robotomono-regular.27f450a1.woff"
   },
   {
-    "revision": "158556ec136bd5bf5340b85df3dc63c2",
-    "url": "fonts/robotomono-regular.158556ec.woff2"
+    "revision": "fb63a2a5e055c7162236c32f956c2c1b",
+    "url": "fonts/roboto-regular.fb63a2a5.woff2"
   },
   {
     "revision": "4edcbeabfcea8e7bdedfbd566cd60def",
     "url": "fonts/robotomono-bold.4edcbeab.woff"
   },
   {
-    "revision": "fb63a2a5e055c7162236c32f956c2c1b",
-    "url": "fonts/roboto-regular.fb63a2a5.woff2"
+    "revision": "44e0a2ef806baf926fd3d43413de397e",
+    "url": "fonts/robotomono-bold.44e0a2ef.woff2"
   },
   {
     "revision": "17ee45df7466d24f5a2cd5cfe3ed761a",
@@ -84,7 +88,7 @@ self.__precacheManifest = [
     "url": "fonts/material-icons.8a9a261c.woff2"
   },
   {
-    "revision": "5c3b8ef8e50aaf6112f1",
-    "url": "css/app.d1f9b3da.css"
+    "revision": "c28bf77b4d641b43a501",
+    "url": "css/app.d1a23329.css"
   }
 ];
