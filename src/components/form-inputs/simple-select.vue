@@ -1,27 +1,24 @@
 <template>
   <div class="v-simple-select">
-    <select
-      @change="stageValue"
-      :value="value"
-      :disabled="disabled"
-      ref="selectElement"
-    >
-      <option disabled :selected="value == null" value="">{{
-        placeholder || "--"
-      }}</option>
+    <select ref="selectElement" :value="value" :disabled="disabled" @change="stageValue">
+      <option disabled :selected="value == null" value="">
+        {{ placeholder || "--" }}
+      </option>
       <slot />
     </select>
     <div class="preview">
-      <template v-if="value">{{ valueText }}</template>
-      <span class="placeholder" v-else>{{ placeholder || "--" }}</span>
-      <i class="material-icons">arrow_drop_down</i>
+      <template v-if="value">
+        {{ valueText }}
+      </template>
+      <span v-else class="placeholder">{{ placeholder || "--" }}</span>
+      <v-icon class="icon" name="arrow_drop_down" />
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: "v-simple-select",
+  name: "VSimpleSelect",
   props: {
     value: {
       type: String,
@@ -38,24 +35,36 @@ export default {
   },
   data() {
     return {
-      valueText: ""
+      valueNames: {}
     };
+  },
+  computed: {
+    valueText() {
+      return this.valueNames[this.value];
+    }
+  },
+  watch: {
+    value() {
+      this.getValueNames();
+    }
+  },
+  mounted() {
+    this.getValueNames();
   },
   methods: {
     stageValue(event) {
       this.$emit("input", event.target.value);
-      this.valueText = event.target.options[event.target.selectedIndex].text;
     },
-    getValueText() {
-      this.valueText = this.value;
-    }
-  },
-  mounted() {
-    this.getValueText();
-  },
-  watch: {
-    value() {
-      this.getValueText();
+    getValueNames() {
+      const selectElement = this.$refs.selectElement;
+      const valueNames = {};
+      const children = Array.from(selectElement.querySelectorAll("option"));
+
+      children.forEach(element => {
+        valueNames[element.value] = element.innerText;
+      });
+
+      this.valueNames = valueNames;
     }
   }
 };
@@ -74,12 +83,12 @@ export default {
     align-items: center;
     padding-left: 10px;
     color: var(--gray);
-    font-size: 1rem;
-    font-weight: 500;
+    font-size: 14px;
+    font-weight: 400;
     line-height: 1.5;
     text-transform: none;
 
-    i {
+    .icon {
       position: absolute;
       right: 10px;
       top: 50%;
@@ -97,6 +106,7 @@ export default {
     height: 100%;
     opacity: 0;
     cursor: pointer;
+    appearance: none;
   }
 
   select:hover + .preview {
@@ -104,7 +114,7 @@ export default {
   }
 
   select:focus + .preview {
-    border-color: var(--accent);
+    border-color: var(--dark-gray);
     color: var(--dark-gray);
   }
 

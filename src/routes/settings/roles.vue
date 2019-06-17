@@ -1,30 +1,26 @@
 <template>
   <div class="settings-roles">
-    <v-header :breadcrumb="breadcrumb">
+    <v-header :breadcrumb="breadcrumb" icon-link="/settings" icon-color="warning">
       <template slot="buttons">
         <v-header-button
-          icon="add"
           key="add"
+          icon="add"
           color="action"
           :label="$t('new')"
           @click="addNew = true"
         />
       </template>
     </v-header>
-    <v-table
-      :items="items"
-      :columns="fields"
-      primary-key-field="collection"
-      link="__link__"
-    />
+    <v-table :items="items" :columns="fields" primary-key-field="collection" link="__link__" />
 
-    <portal to="modal" v-if="addNew">
+    <portal v-if="addNew" to="modal">
       <v-prompt
         v-model="newName"
         :confirm-text="$t('create')"
         :message="$t('create_role')"
         :placeholder="$t('enter_role_name')"
         :loading="adding"
+        required
         @cancel="addNew = false"
         @confirm="add"
       />
@@ -36,7 +32,7 @@
 import api from "../../api";
 
 export default {
-  name: "settings-roles",
+  name: "SettingsRoles",
   metaInfo() {
     return {
       title: `${this.$t("settings")} | ${this.$t("roles")}`
@@ -56,8 +52,7 @@ export default {
       return [
         {
           name: this.$t("settings"),
-          path: "/settings",
-          color: "warning"
+          path: "/settings"
         },
         {
           name: this.$t("roles"),
@@ -131,3 +126,9 @@ export default {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.settings-roles {
+  padding: 0 32px var(--page-padding-bottom);
+}
+</style>

@@ -1,14 +1,10 @@
 <template>
-  <v-input
-    :value="value"
-    class="v-ext-input-fallback"
-    @input="$emit('input', $event)"
-  />
+  <v-input :value="value" class="v-ext-input-fallback" @input="$emit('input', $event)" />
 </template>
 
 <script>
 export default {
-  name: "v-ext-input-fallback",
+  name: "VExtInputFallback",
   props: {
     value: {
       type: null,

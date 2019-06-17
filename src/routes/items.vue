@@ -1,7 +1,13 @@
 <template>
   <v-not-found v-if="notFound" />
-  <div class="route-item-listing" v-else>
-    <v-header info-toggle :item-detail="false" :breadcrumb="breadcrumb">
+  <div v-else class="route-item-listing">
+    <v-header
+      info-toggle
+      :item-detail="false"
+      :breadcrumb="breadcrumb"
+      :icon="collectionInfo.icon || 'box'"
+      :title="currentBookmark && currentBookmark.title"
+    >
       <template slot="title">
         <button
           :class="currentBookmark ? 'active' : null"
@@ -9,19 +15,14 @@
           class="bookmark"
           @click="bookmarkModal = true"
         >
-          <i class="material-icons">
-            {{ currentBookmark ? "bookmark" : "bookmark_border" }}
-          </i>
+          <v-icon :name="currentBookmark ? 'bookmark' : 'bookmark_border'" />
         </button>
-        <div v-if="currentBookmark" class="bookmark-name no-wrap">
-          ({{ currentBookmark.title }})
-        </div>
       </template>
       <v-search-filter
         v-show="selection && selection.length === 0 && !emptyCollection"
         :filters="filters"
         :search-query="searchQuery"
-        :field-names="fieldNames"
+        :field-names="filterableFieldNames"
         :placeholder="resultCopy"
         @filter="updatePreferences('filters', $event)"
         @search="updatePreferences('search_query', $event)"
@@ -32,7 +33,8 @@
           v-if="editButton && !activity"
           key="edit"
           icon="mode_edit"
-          color="warning"
+          color="gray"
+          hover-color="warning"
           :disabled="!editButtonEnabled"
           :label="$t('batch')"
           :to="batchURL"
@@ -41,15 +43,16 @@
           v-if="deleteButton && !activity"
           key="delete"
           icon="delete_outline"
-          color="danger"
+          color="gray"
+          hover-color="danger"
           :disabled="!deleteButtonEnabled"
           :label="$t('delete')"
           @click="confirmRemove = true"
         />
         <v-header-button
           v-if="addButton && !activity"
-          icon="add"
           key="add"
+          icon="add"
           color="action"
           :label="$t('new')"
           :to="`/collections/${collection}/+`"
@@ -76,19 +79,25 @@
 
     <v-info-sidebar v-if="preferences">
       <template slot="system">
-        <v-select
-          id="layout"
-          :options="layoutNames"
-          :value="viewType"
-          name="layout"
-          @input="updatePreferences('view_type', $event)"
-        />
+        <div class="layout-picker">
+          <select :value="viewType" @input="updatePreferences('view_type', $event.target.value)">
+            <option v-for="(name, val) in layoutNames" :key="val" :value="val">
+              {{ name }}
+            </option>
+          </select>
+          <div class="preview">
+            <v-icon :name="layoutIcons[viewType]" color="darker-gray" />
+            <span>{{ layoutNames[viewType] }}</span>
+            <v-icon name="expand_more" color="light-gray" />
+          </div>
+        </div>
       </template>
       <v-ext-layout-options
         :key="`${collection}-${viewType}`"
+        class="layout-options"
         :type="viewType"
         :collection="collection"
-        :fields="$lodash.keyBy(fields, 'field')"
+        :fields="keyBy(fields, 'field')"
         :view-options="viewOptions"
         :view-query="viewQuery"
         :selection="selection"
@@ -96,9 +105,16 @@
         @query="setViewQuery"
         @options="setViewOptions"
       />
+
+      <router-link v-if="canReadActivity" to="/activity" class="notifications">
+        <div class="preview">
+          <v-icon name="notifications" color="light-gray" />
+          <span>{{ $t("notifications") }}</span>
+        </div>
+      </router-link>
     </v-info-sidebar>
 
-    <portal to="modal" v-if="confirmRemove">
+    <portal v-if="confirmRemove" to="modal">
       <v-confirm
         :message="
           $tc('batch_delete_confirm', selection.length, {
@@ -112,13 +128,8 @@
       />
     </portal>
 
-    <portal to="modal" v-if="bookmarkModal">
-      <v-prompt
-        :message="$t('name_bookmark')"
-        v-model="bookmarkTitle"
-        @cancel="cancelBookmark"
-        @confirm="saveBookmark"
-      />
+    <portal v-if="bookmarkModal" to="modal">
+      <v-create-bookmark :preferences="preferences" @close="closeBookmark"></v-create-bookmark>
     </portal>
   </div>
 </template>
@@ -127,12 +138,13 @@
 import shortid from "shortid";
 import store from "../store/";
 import VSearchFilter from "../components/search-filter/search-filter.vue";
+import VCreateBookmark from "../components/bookmarks/create-bookmark.vue";
 import VNotFound from "./not-found.vue";
 
 import api from "../api";
 
 export default {
-  name: "items",
+  name: "Items",
   metaInfo() {
     return {
       title: this.$helpers.formatTitle(this.collection)
@@ -140,7 +152,8 @@ export default {
   },
   components: {
     VSearchFilter,
-    VNotFound
+    VNotFound,
+    VCreateBookmark
   },
   data() {
     return {
@@ -148,10 +161,7 @@ export default {
       meta: null,
       preferences: null,
       confirmRemove: false,
-
       bookmarkModal: false,
-      bookmarkTitle: "",
-
       notFound: false
     };
   },
@@ -178,15 +188,15 @@ export default {
         ];
       }
 
-      const breadcrumb = [];
-
       if (this.collection.startsWith("directus_")) {
-        breadcrumb.push({
-          name: this.$helpers.formatTitle(this.collection.substr(9)),
-          path: `/${this.collection.substring(9)}`
-        });
+        return [
+          {
+            name: this.$helpers.formatTitle(this.collection.substr(9)),
+            path: `/${this.collection.substring(9)}`
+          }
+        ];
       } else {
-        breadcrumb.push(
+        return [
           {
             name: this.$t("collections"),
             path: "/collections"
@@ -195,10 +205,8 @@ export default {
             name: this.$t(`collections-${this.collection}`),
             path: `/collections/${this.collection}`
           }
-        );
+        ];
       }
-
-      return breadcrumb;
     },
     fields() {
       const fields = this.$store.state.collections[this.collection].fields;
@@ -233,7 +241,7 @@ export default {
           view_type: bookmark.view_type,
           view_query: bookmark.view_query
         };
-        return this.$lodash.isEqual(bookmarkPreferences, preferences);
+        return _.isEqual(bookmarkPreferences, preferences);
       })[0];
       return currentBookmark || null;
     },
@@ -262,9 +270,7 @@ export default {
       if (!this.preferences) return {};
 
       const viewQuery =
-        (this.preferences.view_query &&
-          this.preferences.view_query[this.viewType]) ||
-        {};
+        (this.preferences.view_query && this.preferences.view_query[this.viewType]) || {};
 
       // Filter out the fieldnames of fields that don't exist anymore
       // Sorting / querying fields that don't exist anymore will return
@@ -296,19 +302,14 @@ export default {
     },
     viewOptions() {
       if (!this.preferences) return {};
-      return (
-        (this.preferences.view_options &&
-          this.preferences.view_options[this.viewType]) ||
-        {}
-      );
+      return (this.preferences.view_options && this.preferences.view_options[this.viewType]) || {};
     },
     resultCopy() {
       if (!this.meta || !this.preferences) return this.$t("loading");
 
       const isFiltering =
-        !this.$lodash.isEmpty(this.preferences.filters) ||
-        (!this.$lodash.isNil(this.preferences.search_query) &&
-          this.preferences.search_query.length > 0);
+        !_.isEmpty(this.preferences.filters) ||
+        (!_.isNil(this.preferences.search_query) && this.preferences.search_query.length > 0);
 
       return isFiltering
         ? this.$tc("item_count_filter", this.meta.result_count, {
@@ -318,8 +319,8 @@ export default {
             count: this.$n(this.meta.total_count)
           });
     },
-    fieldNames() {
-      return this.fields.map(field => field.field);
+    filterableFieldNames() {
+      return this.fields.filter(field => field.datatype).map(field => field.field);
     },
     layoutNames() {
       if (!this.$store.state.extensions.layouts) return {};
@@ -329,14 +330,18 @@ export default {
       });
       return translatedNames;
     },
+    layoutIcons() {
+      if (!this.$store.state.extensions.layouts) return {};
+      const icons = {};
+      Object.keys(this.$store.state.extensions.layouts).forEach(id => {
+        icons[id] = this.$store.state.extensions.layouts[id].icon;
+      });
+      return icons;
+    },
     statusField() {
       if (!this.fields) return null;
-
       return (
-        this.$lodash.find(
-          Object.values(this.fields),
-          field => field.type.toLowerCase() === "status"
-        ) || {}
+        _.find(Object.values(this.fields), field => field.type.toLowerCase() === "status") || {}
       ).field;
     },
 
@@ -344,13 +349,12 @@ export default {
     // This will make the delete button update the item to the hidden status
     // instead of deleting it completely from the database
     softDeleteStatus() {
-      if (!this.collectionInfo.status_mapping) return null;
+      if (!this.collectionInfo.status_mapping || !this.statusField) return null;
 
       const statusKeys = Object.keys(this.collectionInfo.status_mapping);
-      const index = this.$lodash.findIndex(
-        Object.values(this.collectionInfo.status_mapping),
-        { soft_delete: true }
-      );
+      const index = _.findIndex(Object.values(this.collectionInfo.status_mapping), {
+        soft_delete: true
+      });
       return statusKeys[index];
     },
 
@@ -358,18 +362,22 @@ export default {
       if (!this.fields) return null;
 
       return (
-        this.$lodash.find(
-          Object.values(this.fields),
-          field => field.type.toLowerCase() === "user_created"
-        ) || {}
+        _.find(Object.values(this.fields), field => field.type.toLowerCase() === "user_created") ||
+        {}
       ).field;
     },
     primaryKeyField() {
       if (!this.fields) return null;
-      return this.$lodash.find(this.fields, { primary_key: true }).field;
+      return _.find(this.fields, { primary_key: true }).field;
+    },
+    permissions() {
+      return this.$store.state.permissions;
     },
     permission() {
-      return this.$store.state.permissions[this.collection];
+      return this.permissions[this.collection];
+    },
+    canReadActivity() {
+      return this.permissions.directus_activity.read !== "none";
     },
     addButton() {
       if (this.$store.state.currentUser.admin) return true;
@@ -396,9 +404,7 @@ export default {
 
       this.selection.forEach(item => {
         const status = this.statusField ? item[this.statusField] : null;
-        const permission = this.statusField
-          ? this.permission.statuses[status]
-          : this.permission;
+        const permission = this.statusField ? this.permission.statuses[status] : this.permission;
         const userID = item[this.userCreatedField];
 
         if (permission.delete === "none") {
@@ -436,9 +442,7 @@ export default {
 
       this.selection.forEach(item => {
         const status = this.statusField ? item[this.statusField] : null;
-        const permission = this.statusField
-          ? this.permission.statuses[status]
-          : this.permission;
+        const permission = this.statusField ? this.permission.statuses[status] : this.permission;
         const userID = item[this.userCreatedField];
 
         if (permission.update === "none") {
@@ -465,9 +469,18 @@ export default {
       return enabled;
     }
   },
+  watch: {
+    $route() {
+      if (this.$route.query.b) {
+        this.$router.replace({
+          path: this.$route.path
+        });
+      }
+    }
+  },
   methods: {
-    cancelBookmark() {
-      this.bookmarkTitle = "";
+    keyBy: _.keyBy,
+    closeBookmark() {
       this.bookmarkModal = false;
     },
     setViewQuery(query) {
@@ -586,42 +599,6 @@ export default {
             error
           });
         });
-    },
-    saveBookmark() {
-      const preferences = { ...this.preferences };
-      preferences.user = this.$store.state.currentUser.id;
-      preferences.title = this.bookmarkTitle;
-      delete preferences.id;
-      delete preferences.role;
-      if (!preferences.collection) {
-        preferences.collection = this.collection;
-      }
-      const id = this.$helpers.shortid.generate();
-      this.$store.dispatch("loadingStart", { id });
-
-      this.$store
-        .dispatch("saveBookmark", preferences)
-        .then(() => {
-          this.$store.dispatch("loadingFinished", id);
-          this.bookmarkModal = false;
-          this.bookmarkTitle = "";
-        })
-        .catch(error => {
-          this.$store.dispatch("loadingFinished", id);
-          this.$events.emit("error", {
-            notify: this.$t("something_went_wrong_body"),
-            error
-          });
-        });
-    }
-  },
-  watch: {
-    $route() {
-      if (this.$route.query.b) {
-        this.$router.replace({
-          path: this.$route.path
-        });
-      }
     }
   },
   beforeRouteEnter(to, from, next) {
@@ -629,12 +606,11 @@ export default {
 
     const collectionInfo = store.state.collections[collection] || null;
 
-    if (
-      collection.startsWith("directus_") === false &&
-      collectionInfo === null
-    ) {
+    if (collection.startsWith("directus_") === false && collectionInfo === null) {
       return next(vm => (vm.notFound = true));
     }
+
+    if (collection === "directus_files") return next("/files");
 
     if (collectionInfo && collectionInfo.single) {
       return next(`/collections/${collection}/1`);
@@ -669,10 +645,7 @@ export default {
 
     const collectionInfo = this.$store.state.collections[collection] || null;
 
-    if (
-      collection.startsWith("directus_") === false &&
-      collectionInfo === null
-    ) {
+    if (collection.startsWith("directus_") === false && collectionInfo === null) {
       this.notFound = true;
       return next();
     }
@@ -706,33 +679,73 @@ export default {
 label.style-4 {
   padding-bottom: 5px;
 }
+
 .bookmark {
-  margin-left: 10px;
-  opacity: 0.4;
-  transition: opacity var(--fast) var(--transition);
+  margin-left: 5px;
   position: relative;
-  &:hover {
-    opacity: 1;
-  }
+
   i {
+    transition: color var(--fast) var(--transition);
+    color: var(--light-gray);
     font-size: 24px;
     height: 20px;
-    transform: translateY(-3px); // Vertical alignment of icon
+    transform: translateY(-1px); // Vertical alignment of icon
+  }
+
+  &:hover {
+    i {
+      color: var(--darker-gray);
+    }
   }
 }
+
 .bookmark.active {
   opacity: 1;
   i {
     color: var(--accent);
   }
 }
-.bookmark-name {
-  color: var(--accent);
-  margin-left: 5px;
-  margin-top: 3px;
-  font-size: 0.67em;
-  line-height: 1.1;
-  font-weight: 700;
-  text-transform: uppercase;
+
+.layout-picker,
+.notifications {
+  margin: -20px;
+  padding: 20px;
+  background-color: #dde3e6;
+  color: var(--darker-gray);
+  position: relative;
+  display: block;
+
+  .preview {
+    display: flex;
+    align-items: center;
+
+    span {
+      flex-grow: 1;
+      margin-left: 10px;
+    }
+  }
+
+  select {
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+  }
+}
+
+.layout-options {
+  margin-bottom: 64px;
+}
+
+.notifications {
+  position: fixed;
+  width: var(--info-sidebar-width);
+  bottom: 0;
+  right: 0;
+  margin: 0;
+  text-decoration: none;
 }
 </style>

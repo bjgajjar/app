@@ -15,11 +15,7 @@
   />
 
   <v-error
-    v-else-if="
-      collection === 'directus_files' &&
-        items.meta &&
-        items.meta.total_count === 0
-    "
+    v-else-if="collection === 'directus_files' && items.meta && items.meta.total_count === 0"
     icon="image"
     :title="$t('no_files')"
     :body="$t('no_files_body')"
@@ -34,9 +30,7 @@
 
   <v-error
     v-else-if="
-      items.data &&
-        items.data.length === 0 &&
-        (items.meta && items.meta.total_count !== 0)
+      items.data && items.data.length === 0 && (items.meta && items.meta.total_count !== 0)
     "
     :title="$t('no_results')"
     :body="$t('no_results_body')"
@@ -52,6 +46,7 @@
     :view-options="viewOptions"
     :selection="selectionKeys"
     :loading="items.loading"
+    :collection="collection"
     :lazy-loading="items.lazyLoading"
     :link="links ? '__link__' : null"
     :sort-field="sortField"
@@ -67,7 +62,7 @@
 import formatFilters from "../helpers/format-filters";
 
 export default {
-  name: "v-items",
+  name: "VItems",
   props: {
     collection: {
       type: String,
@@ -117,35 +112,30 @@ export default {
   },
   computed: {
     allSelected() {
-      const primaryKeys = this.items.data
-        .map(item => item[this.primaryKeyField])
-        .sort();
+      const primaryKeys = this.items.data.map(item => item[this.primaryKeyField]).sort();
       const selection = [...this.selection];
       selection.sort();
-      return (
-        this.selection.length > 0 &&
-        this.$lodash.isEqual(primaryKeys, selection)
-      );
+      return this.selection.length > 0 && _.isEqual(primaryKeys, selection);
     },
     primaryKeyField() {
       if (!this.fields) return;
-      return this.$lodash.find(Object.values(this.fields), {
+      return _.find(Object.values(this.fields), {
         primary_key: true
       }).field;
     },
     sortField() {
-      const field = this.$lodash.find(this.fields, { type: "sort" });
+      const field = _.find(this.fields, { type: "sort" });
       return (field && field.field) || null;
     },
     statusField() {
-      const field = this.$lodash.find(this.fields, { type: "status" });
+      const field = _.find(this.fields, { type: "status" });
       return (field && field.field) || null;
     },
     userCreatedField() {
       if (!this.fields) return null;
 
       return (
-        this.$lodash.find(
+        _.find(
           Object.values(this.fields),
           field => field.type && field.type.toLowerCase() === "user_created"
         ) || {}
@@ -154,7 +144,7 @@ export default {
     fields() {
       const fields = this.$store.state.collections[this.collection].fields;
       return (
-        this.$lodash.mapValues(fields, field => ({
+        _.mapValues(fields, field => ({
           ...field,
           name: this.$helpers.formatTitle(field.field)
         })) || {}
@@ -162,37 +152,35 @@ export default {
     },
     selectionKeys() {
       if (!this.selection) return null;
-      return this.$lodash.uniq(
-        this.selection.map(item => item[this.primaryKeyField])
-      );
+      return _.uniq(this.selection.map(item => item[this.primaryKeyField]));
     }
-  },
-  created() {
-    this.hydrate();
   },
   watch: {
     collection(newVal, oldVal) {
-      if (this.$lodash.isEqual(newVal, oldVal)) return;
+      if (_.isEqual(newVal, oldVal)) return;
       this.hydrate();
     },
     viewQuery: {
       deep: true,
       handler(newVal, oldVal) {
-        if (this.$lodash.isEqual(newVal, oldVal)) return;
+        if (_.isEqual(newVal, oldVal)) return;
         this.getItems();
       }
     },
     filters: {
       deep: true,
       handler(newVal, oldVal) {
-        if (this.$lodash.isEqual(newVal, oldVal)) return;
+        if (_.isEqual(newVal, oldVal)) return;
         this.getItems();
       }
     },
     searchQuery(newVal, oldVal) {
-      if (this.$lodash.isEqual(newVal, oldVal)) return;
+      if (_.isEqual(newVal, oldVal)) return;
       this.getItems();
     }
+  },
+  created() {
+    this.hydrate();
   },
   mounted() {
     this.$helpers.mousetrap.bind("mod+a", () => {
@@ -243,9 +231,7 @@ export default {
               ...item,
               __link__: this.collection.startsWith("directus_")
                 ? `/${this.collection.substr(9)}/${item[this.primaryKeyField]}`
-                : `/collections/${this.collection}/${
-                    item[this.primaryKeyField]
-                  }`
+                : `/collections/${this.collection}/${item[this.primaryKeyField]}`
             }));
           } else {
             this.items.data = res.data;
@@ -265,10 +251,9 @@ export default {
         "select",
         primaryKeys.map(key => {
           return (
-            this.$lodash.find(this.items.data, {
+            _.find(this.items.data, {
               [this.primaryKeyField]: key
-            }) ||
-            this.$lodash.find(this.selection, { [this.primaryKeyField]: key })
+            }) || _.find(this.selection, { [this.primaryKeyField]: key })
           );
         })
       );
@@ -310,12 +295,8 @@ export default {
         });
 
         return Promise.all([
-          update.length > 0
-            ? this.$api.updateItems(this.collection, update)
-            : null,
-          create.length > 0
-            ? this.$api.createItems(this.collection, create)
-            : null
+          update.length > 0 ? this.$api.updateItems(this.collection, update) : null,
+          create.length > 0 ? this.$api.createItems(this.collection, create) : null
         ])
           .then(() => {
             this.$store.dispatch("loadingFinished", id);
@@ -386,12 +367,8 @@ export default {
               ...res.data.map(item => ({
                 ...item,
                 __link__: this.collection.startsWith("directus_")
-                  ? `/${this.collection.substr(9)}/${
-                      item[this.primaryKeyField]
-                    }`
-                  : `/collections/${this.collection}/${
-                      item[this.primaryKeyField]
-                    }`
+                  ? `/${this.collection.substr(9)}/${item[this.primaryKeyField]}`
+                  : `/collections/${this.collection}/${item[this.primaryKeyField]}`
               }))
             ];
           } else {

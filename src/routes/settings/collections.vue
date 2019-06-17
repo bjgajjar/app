@@ -1,10 +1,10 @@
 <template>
   <div class="collections">
-    <v-header :breadcrumb="breadcrumb">
+    <v-header :breadcrumb="breadcrumb" icon-color="warning" icon-link="/settings">
       <template slot="buttons">
         <v-header-button
-          icon="add"
           key="add"
+          icon="add"
           color="action"
           :label="$t('new')"
           @click="addNew = true"
@@ -18,7 +18,7 @@
       icon="error_outline"
     />
 
-    <div class="table" v-else>
+    <div v-else class="table">
       <div class="header">
         <div class="row">
           <div class="cell style-4">{{ $t("collection") }}</div>
@@ -34,25 +34,27 @@
         >
           <div class="cell">{{ collection.name }}</div>
           <div class="cell note">{{ collection.note }}</div>
-          <button
+          <v-button
             v-if="collection.managed"
             class="managed"
-            @click.prevent.stop="toggleManage(collection)"
+            :loading="toManage.includes(collection.collection)"
+            @click="toggleManage(collection)"
           >
             {{ $t("dont_manage") }}
-          </button>
-          <button
+          </v-button>
+          <v-button
             v-else
             class="not-managed"
-            @click.prevent.stop="toggleManage(collection)"
+            :loading="toManage.includes(collection.collection)"
+            @click="toggleManage(collection)"
           >
             {{ $t("manage") }}
-          </button>
+          </v-button>
         </router-link>
       </div>
     </div>
 
-    <portal to="modal" v-if="addNew">
+    <portal v-if="addNew" to="modal">
       <v-prompt
         v-model="newName"
         safe
@@ -65,36 +67,41 @@
       >
         <v-details title="Default fields" :open="true">
           <div class="advanced-form">
-            <label class="toggle"
-              ><v-toggle v-model="status" /> {{ $t("Status") }}</label
-            >
-            <label class="toggle"
-              ><v-toggle v-model="sort" /> {{ $t("Sort") }}</label
-            >
-            <label class="toggle"
-              ><v-toggle v-model="createdBy" :value="true" />
-              {{ $t("Created by") }}</label
-            >
-            <label class="toggle"
-              ><v-toggle v-model="createdOn" :value="true" />
-              {{ $t("Created on") }}</label
-            >
-            <label class="toggle"
-              ><v-toggle v-model="modifiedBy" /> {{ $t("Modified by") }}</label
-            >
-            <label class="toggle"
-              ><v-toggle v-model="modifiedOn" /> {{ $t("Modified on") }}</label
-            >
+            <label class="toggle">
+              <v-toggle v-model="status" />
+              {{ $t("status") }}
+            </label>
+            <label class="toggle">
+              <v-toggle v-model="sort" />
+              {{ $t("sort") }}
+            </label>
+            <label class="toggle">
+              <v-toggle v-model="createdBy" :value="true" />
+              {{ $t("created_by") }}
+            </label>
+            <label class="toggle">
+              <v-toggle v-model="createdOn" :value="true" />
+              {{ $t("created_on") }}
+            </label>
+            <label class="toggle">
+              <v-toggle v-model="modifiedBy" />
+              {{ $t("modified_by") }}
+            </label>
+            <label class="toggle">
+              <v-toggle v-model="modifiedOn" />
+              {{ $t("modified_on") }}
+            </label>
           </div>
         </v-details>
       </v-prompt>
     </portal>
 
-    <portal to="modal" v-if="dontManage">
+    <portal v-if="dontManage" to="modal">
       <v-confirm
         :message="$t('dont_manage_copy', { collection: dontManage.name })"
         color="danger"
         :confirm-text="$t('dont_manage')"
+        :loading="toManage.includes(dontManage.collection.collection)"
         @cancel="dontManage = null"
         @confirm="stopManaging"
       />
@@ -103,15 +110,11 @@
 </template>
 
 <script>
-import { defaultFull } from "../../store/modules/permissions/defaults";
-
 export default {
-  name: "settings-collections",
+  name: "SettingsCollections",
   metaInfo() {
     return {
-      title: `${this.$t("settings")} | ${this.$t(
-        "settings_collections_fields"
-      )}`
+      title: `${this.$t("settings")} | ${this.$t("settings_collections_fields")}`
     };
   },
   data() {
@@ -126,7 +129,8 @@ export default {
       modifiedBy: false,
       modifiedOn: false,
 
-      dontManage: null
+      dontManage: null,
+      toManage: []
     };
   },
   computed: {
@@ -134,9 +138,7 @@ export default {
       const collections = this.$store.state.collections || {};
 
       return Object.values(collections)
-        .filter(
-          collection => collection.collection.startsWith("directus_") === false
-        )
+        .filter(collection => collection.collection.startsWith("directus_") === false)
         .map(collection => ({
           ...collection,
           name: this.$t(`collections-${collection.collection}`),
@@ -147,8 +149,7 @@ export default {
       return [
         {
           name: this.$t("settings"),
-          path: "/settings",
-          color: "warning"
+          path: "/settings"
         },
         {
           name: this.$t("collections_and_fields"),
@@ -201,7 +202,7 @@ export default {
           type: "integer",
           unique: false,
           validation: null,
-          width: 4
+          width: "full"
         }
       };
 
@@ -212,6 +213,8 @@ export default {
           length: 20,
           field: "status",
           interface: "status",
+          default_value: "draft",
+          width: "full",
           options: {
             status_mapping: {
               published: {
@@ -226,7 +229,7 @@ export default {
               draft: {
                 name: "Draft",
                 text_color: "white",
-                background_color: "blue-grey-200",
+                background_color: "blue-grey-100",
                 browse_subdued: true,
                 browse_badge: true,
                 soft_delete: false,
@@ -251,7 +254,7 @@ export default {
           unique: false,
           primary_key: false,
           auto_increment: false,
-          default_value: null,
+          default_value: "draft",
           note: null,
           signed: true,
           type: "status",
@@ -274,7 +277,7 @@ export default {
               draft: {
                 name: "Draft",
                 text_color: "white",
-                background_color: "blue-grey-200",
+                background_color: "blue-grey-100",
                 browse_subdued: true,
                 browse_badge: true,
                 soft_delete: false,
@@ -294,7 +297,7 @@ export default {
           locked: false,
           translation: null,
           readonly: false,
-          width: 4,
+          width: "full",
           validation: null,
           group: null,
           length: "20"
@@ -305,7 +308,10 @@ export default {
           type: "sort",
           datatype: "INT",
           field: "sort",
-          interface: "sort"
+          interface: "sort",
+          hidden_detail: true,
+          hidden_browse: true,
+          width: "full"
         });
         fieldsToDispatch.sort = {
           collection: this.newName,
@@ -320,14 +326,14 @@ export default {
           type: "sort",
           sort: 0,
           interface: "sort",
-          hidden_detail: false,
-          hidden_browse: false,
+          hidden_detail: true,
+          hidden_browse: true,
           required: false,
           options: null,
           locked: false,
           translation: null,
           readonly: false,
-          width: 4,
+          width: "full",
           validation: null,
           group: null,
           length: "10"
@@ -345,7 +351,8 @@ export default {
           },
           readonly: true,
           hidden_detail: true,
-          hidden_browse: true
+          hidden_browse: true,
+          width: "full"
         });
         fieldsToDispatch.created_by = {
           collection: this.newName,
@@ -370,7 +377,7 @@ export default {
           locked: false,
           translation: null,
           readonly: true,
-          width: 4,
+          width: "full",
           validation: null,
           group: null,
           length: "10"
@@ -384,7 +391,8 @@ export default {
           interface: "datetime-created",
           readonly: true,
           hidden_detail: true,
-          hidden_browse: true
+          hidden_browse: true,
+          width: "full"
         });
         fieldsToDispatch.created_on = {
           collection: this.newName,
@@ -406,7 +414,7 @@ export default {
           locked: false,
           translation: null,
           readonly: true,
-          width: 4,
+          width: "full",
           validation: null,
           group: null,
           length: null
@@ -424,7 +432,8 @@ export default {
           },
           readonly: true,
           hidden_detail: true,
-          hidden_browse: true
+          hidden_browse: true,
+          width: "full"
         });
         fieldsToDispatch.modified_by = {
           collection: this.newName,
@@ -449,7 +458,7 @@ export default {
           locked: false,
           translation: null,
           readonly: true,
-          width: 4,
+          width: "full",
           validation: null,
           group: null,
           length: "10"
@@ -463,7 +472,8 @@ export default {
           interface: "datetime-updated",
           readonly: true,
           hidden_detail: true,
-          hidden_browse: true
+          hidden_browse: true,
+          width: "full"
         });
         fieldsToDispatch.modified_on = {
           collection: this.newName,
@@ -485,7 +495,7 @@ export default {
           locked: false,
           translation: null,
           readonly: true,
-          width: 4,
+          width: "full",
           validation: null,
           group: null,
           length: null
@@ -513,13 +523,7 @@ export default {
             // https://github.com/directus/api/issues/207
             fields: fieldsToDispatch
           });
-          this.$store.dispatch("addPermission", {
-            collection: this.newName,
-            permission: {
-              $create: defaultFull,
-              ...defaultFull
-            }
-          });
+          this.$store.dispatch("getPermissions");
           this.$router.push(`/settings/collections/${this.newName}`);
         })
         .catch(error => {
@@ -532,9 +536,7 @@ export default {
             };
             this.$events.emit("error", {
               notify:
-                error.code in errors
-                  ? errors[error.code]
-                  : this.$t("something_went_wrong_body"),
+                error.code in errors ? errors[error.code] : this.$t("something_went_wrong_body"),
               error
             });
           }
@@ -549,6 +551,7 @@ export default {
             managed: true
           })
           .then(() => {
+            this.toManage.push(collection.collection);
             return this.$store.dispatch("getCollections");
           })
           .then(() => {
@@ -565,12 +568,17 @@ export default {
               notify: this.$t("something_went_wrong_body"),
               error
             });
+          })
+          .then(() => {
+            this.toManage.splice(this.toManage.indexOf(collection.collection), 1);
           });
       }
     },
     stopManaging() {
+      const dontManage = this.dontManage;
+      this.toManage.push(dontManage.collection.collection);
       return this.$api
-        .updateItem("directus_collections", this.dontManage.collection, {
+        .updateItem("directus_collections", dontManage.collection, {
           managed: false
         })
         .then(() => {
@@ -579,19 +587,21 @@ export default {
         .then(() => {
           this.$notify({
             title: this.$t("manage_stopped", {
-              collection: this.dontManage.collection
+              collection: dontManage.collection
             }),
             color: "green",
             iconMain: "check"
           });
-
-          this.dontManage = null;
         })
         .catch(error => {
           this.$events.emit("error", {
             notify: this.$t("something_went_wrong_body"),
             error
           });
+        })
+        .then(() => {
+          this.toManage.splice(this.toManage.indexOf(dontManage.collection.collection), 1);
+          this.dontManage = null;
         });
     }
   }
@@ -600,7 +610,7 @@ export default {
 
 <style lang="scss" scoped>
 .collections {
-  padding-bottom: var(--page-padding-bottom);
+  padding: 0 32px var(--page-padding-bottom);
 }
 
 .table {
@@ -610,10 +620,9 @@ export default {
   .row {
     display: flex;
     align-items: center;
-    padding: 0 20px;
-    border-bottom: 1px solid var(--lightest-gray);
+    border-bottom: 2px solid var(--off-white);
     box-sizing: content-box;
-    height: 40px;
+    height: 48px;
   }
 
   .cell {
@@ -639,6 +648,7 @@ export default {
 
     .row {
       height: 100%;
+      border-bottom: 2px solid var(--lightest-gray);
     }
   }
 
@@ -654,7 +664,14 @@ export default {
     border-radius: var(--border-radius);
     padding: 5px 10px;
     position: absolute;
-    right: 20px;
+    right: 0;
+
+    min-width: auto;
+    height: auto;
+    font-size: 14px;
+    line-height: 1.3;
+    font-weight: 200;
+    border: 0;
 
     &.managed {
       background-color: var(--lightest-gray);
@@ -667,11 +684,11 @@ export default {
     }
 
     &.not-managed {
-      background-color: var(--accent);
+      background-color: var(--darker-gray);
       color: var(--white);
 
       &:hover {
-        background-color: var(--accent-dark);
+        background-color: var(--darkest-gray);
         color: var(--white);
       }
     }
@@ -696,7 +713,7 @@ export default {
       width: max-content;
 
       &:not(.disabled):hover {
-        color: var(--accent);
+        color: var(--darkest-gray);
       }
 
       > *:first-child {

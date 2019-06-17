@@ -1,40 +1,40 @@
 <template>
-  <div class="v-header-button">
-    <div v-if="Object.keys(options).length > 0" class="options">
-      <select :disabled="disabled" v-model="choice" @change="emitChange">
-        <option disabled selected value=""> {{ $t("more_options") }} </option>
-        <option v-for="(display, value) in options" :value="value" :key="value">
-          {{ display }}
-        </option>
-      </select>
-      <i class="material-icons">more_horiz</i>
-    </div>
+  <div
+    v-tooltip="{
+      delay: { show: 750, hide: 100 },
+      content: label
+    }"
+    class="v-header-button"
+  >
+    <v-contextual-menu
+      v-if="Object.keys(options).length > 0"
+      class="options"
+      placement="bottom-start"
+      :options="options"
+      @click="emitChange"
+    ></v-contextual-menu>
     <component
       :is="disabled ? 'button' : to ? 'router-link' : 'button'"
       :style="{
         backgroundColor: noBackground || disabled ? null : `var(--${color})`,
-        color: `var(--${color})`
+        color: `var(--${color})`,
+        '--hover-color': hoverColor ? `var(--${hoverColor})` : null
       }"
-      :class="{ attention: alert, 'no-bg': noBackground }"
+      :class="{ attention: alert, 'no-bg': noBackground, 'has-bg': hoverColor }"
+      class="button"
       :disabled="disabled"
       :to="to || null"
       @click="!to ? $emit('click', $event) : null"
     >
-      <i v-if="!loading" class="material-icons">{{ icon }}</i>
-      <v-spinner
-        v-else
-        :size="24"
-        line-fg-color="white"
-        line-bg-color="transparent"
-      />
-      <span class="style-btn" v-if="label">{{ label }}</span>
+      <v-spinner v-if="loading" :size="24" line-fg-color="white" line-bg-color="transparent" />
+      <v-icon v-else :style="{ color: `var(--${iconColor})` }" :name="icon" />
     </component>
   </div>
 </template>
 
 <script>
 export default {
-  name: "v-header-button",
+  name: "VHeaderButton",
   props: {
     icon: {
       type: String,
@@ -42,11 +42,15 @@ export default {
     },
     color: {
       type: String,
-      default: "accent"
+      default: "gray"
     },
-    label: {
+    hoverColor: {
       type: String,
       default: null
+    },
+    iconColor: {
+      type: String,
+      default: "white"
     },
     disabled: {
       type: Boolean,
@@ -71,6 +75,10 @@ export default {
     to: {
       type: String,
       default: null
+    },
+    label: {
+      type: String,
+      default: undefined
     }
   },
   data() {
@@ -80,7 +88,7 @@ export default {
   },
   methods: {
     emitChange(event) {
-      this.$emit("input", event.target.value);
+      this.$emit("input", event);
       this.choice = null;
     }
   }
@@ -90,25 +98,35 @@ export default {
 <style scoped lang="scss">
 .v-header-button {
   position: relative;
-  height: var(--header-height);
-  width: var(--header-height);
+  height: calc(var(--header-height) - 20px);
+  width: calc(var(--header-height) - 20px);
+  min-width: calc(var(--header-height) - 20px);
   display: inline-block;
+  margin-left: 16px;
+}
+
+.button {
+  transition: background-color var(--fast) var(--transition);
+}
+
+.button.has-bg:hover:not([disabled]) {
+  background-color: var(--hover-color) !important;
 }
 
 button,
 a {
   position: relative;
   background-color: transparent;
-  appearance: none;
-  display: block;
   border: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100%;
   width: 100%;
-  border-radius: 0;
+  border-radius: 100%;
+  overflow: hidden;
   cursor: pointer;
+  text-decoration: none;
 
   i {
     transition: 100ms var(--transition);
@@ -132,7 +150,7 @@ a {
   }
 
   &:not([disabled]):active i {
-    transform: scale(0.8);
+    transform: scale(0.9);
     opacity: 0.8;
   }
 
@@ -158,16 +176,18 @@ a {
 }
 
 button.no-bg {
-  border-left: 1px solid #444444;
+  border: 2px solid var(--lighter-gray);
   background-color: transparent;
+  i {
+    color: var(--lighter-gray);
+  }
 }
 
 button[disabled] {
-  background-color: var(--darker-gray);
-  color: var(--dark-gray);
+  background-color: var(--lighter-gray) !important;
   cursor: not-allowed;
   i {
-    color: var(--gray);
+    color: var(--lightest-gray) !important;
   }
 }
 
@@ -175,40 +195,10 @@ button[disabled] {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
-  height: 30%;
+  height: 100%;
   position: absolute;
   overflow: hidden;
-  top: 0;
-  left: 0;
+  right: -20px;
   z-index: +1;
-
-  i {
-    opacity: 0.6;
-    transition: opacity var(--fast) var(--transition);
-  }
-
-  select {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    top: 0;
-    left: 0;
-    cursor: pointer;
-    z-index: +2;
-
-    &:hover:not([disabled]) + i {
-      opacity: 1;
-    }
-
-    &[disabled] {
-      cursor: not-allowed;
-
-      & + i {
-        opacity: 0.1;
-      }
-    }
-  }
 }
 </style>

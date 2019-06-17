@@ -1,11 +1,6 @@
 <template>
   <div class="nav-sidebar">
-    <v-blocker
-      v-show="active"
-      class="blocker"
-      @click="disableNav"
-      :z-index="2"
-    />
+    <v-blocker v-show="active" class="blocker" :z-index="2" @click="disableNav" />
     <transition name="nav">
       <aside :class="{ active }">
         <button class="a11y-close" @click="disableNav">Close nav</button>
@@ -14,32 +9,42 @@
 
         <section class="content">
           <project-switcher />
-          <nav-menu
-            v-if="collections && collections.length > 0"
-            :title="$t('collections')"
-            :no-border="!bookmarks.length && !extensions"
-            :links="
-              collections.map(({ collection, icon }) => ({
-                path: `/collections/${collection}`,
-                name: $t(`collections-${collection}`),
-                icon
-              }))
-            "
-          />
-          <nav-menu
-            v-if="extensions"
-            :title="$t('extensions')"
-            :links="extensions"
-            :no-border="!bookmarks.length"
-          />
-          <nav-bookmarks :bookmarks="bookmarks" no-border />
+
+          <template v-for="section in navStructure">
+            <nav-bookmarks
+              v-if="section.include && section.include === 'bookmarks' && bookmarks.length > 0"
+              :key="section.id"
+              class="menu-section"
+              :bookmarks="bookmarks"
+            />
+            <nav-menu
+              v-else-if="section.include && section.include === 'collections'"
+              :key="section.id"
+              class="menu-section"
+              :title="$t('collections')"
+              :links="linksCollections"
+            />
+            <nav-menu
+              v-else-if="section.include && section.include === 'extensions'"
+              :key="section.id"
+              class="menu-section"
+              :title="$t('extensions')"
+              :links="linksExtensions"
+            />
+            <nav-menu
+              v-else
+              :key="section.id"
+              class="menu-section"
+              :title="section.title"
+              :links="section.links ? section.links : []"
+            />
+          </template>
         </section>
         <user-menu />
       </aside>
     </transition>
   </div>
 </template>
-
 <script>
 import VLogo from "./logo.vue";
 import ProjectSwitcher from "./project-switcher.vue";
@@ -50,7 +55,7 @@ import VBlocker from "../../blocker.vue";
 import { TOGGLE_NAV } from "../../../store/mutation-types";
 
 export default {
-  name: "nav-sidebar",
+  name: "NavSidebar",
   components: {
     VLogo,
     ProjectSwitcher,
@@ -76,11 +81,8 @@ export default {
             collection.collection.startsWith("directus_") === false
         )
         .filter(collection => {
-          if (
-            collection.status_mapping &&
-            this.permissions[collection.collection].statuses
-          ) {
-            return this.$lodash.some(
+          if (collection.status_mapping && this.permissions[collection.collection].statuses) {
+            return _.some(
               this.permissions[collection.collection].statuses,
               permission => permission.read !== "none"
             );
@@ -89,20 +91,60 @@ export default {
           return this.permissions[collection.collection].read !== "none";
         });
     },
-    bookmarks() {
-      return this.$store.state.bookmarks;
-    },
     projectName() {
       return this.$store.state.auth.projectName;
     },
     active() {
       return this.$store.state.sidebars.nav;
     },
-    extensions() {
+    bookmarks() {
+      return this.$store.state.bookmarks;
+    },
+
+    // This is the default structure of the navigation pane
+    // By default it will list collections, bookmarks, and extensions
+    // This is the thing that will be overridden by the nav_override field
+    // in directus_roles
+    defaultNavStructure() {
+      return [
+        {
+          title: "$t:collections",
+          include: "collections"
+        },
+        {
+          title: "$t:bookmarks",
+          include: "bookmarks"
+        },
+        {
+          title: "$t:extensions",
+          include: "extensions"
+        }
+      ];
+    },
+
+    // The structure of the navigation. Will return the stored value for the role
+    // nav override or the default structure above if it isn't set
+    // It will also replace the `includes` with links for the actual sections
+    navStructure() {
+      const userRole = this.$store.state.currentUser.roles[0];
+      const navOverride = userRole.nav_override;
+
+      return navOverride || this.defaultNavStructure;
+    },
+
+    linksCollections() {
+      return this.collections.map(({ collection, icon }) => ({
+        path: `/collections/${collection}`,
+        name: this.$t(`collections-${collection}`),
+        icon
+      }));
+    },
+
+    linksExtensions() {
       const links = [];
       const pages = this.$store.state.extensions.pages;
 
-      this.$lodash.forEach(pages, (info, key) => {
+      _.forEach(pages, (info, key) => {
         links.push({
           path: `/ext/${key}`,
           name: info.name,
@@ -110,7 +152,7 @@ export default {
         });
       });
 
-      return links.length ? links : null;
+      return links;
     }
   },
   methods: {
@@ -122,14 +164,7 @@ export default {
     },
     toBookmark(bookmark) {
       /* eslint-disable camelcase */
-      const {
-        collection,
-        search_query,
-        filters,
-        view_options,
-        view_type,
-        view_query
-      } = bookmark;
+      const { collection, search_query, filters, view_options, view_type, view_query } = bookmark;
 
       this.$store
         .dispatch("setListingPreferences", {
@@ -162,7 +197,8 @@ aside {
   z-index: 30;
   width: 100%;
   max-width: 80%;
-  background-color: var(--white);
+  background-color: var(--lightest-gray);
+  color: var(--darker-gray);
 
   transform: translateX(-100%);
   visibility: hidden;
@@ -211,10 +247,11 @@ aside {
   height: calc(100% - var(--header-height) - var(--header-height));
   overflow: auto;
   -webkit-overflow-scrolling: touch;
+}
 
-  @media (min-width: 800px) {
-    box-shadow: 1px 0 0 0 var(--lightest-gray);
-  }
+.menu-section + .menu-section {
+  border-top: 2px solid var(--lighter-gray);
+  padding-top: 20px;
 }
 </style>
 

@@ -1,82 +1,81 @@
 <template>
-  <div class="v-field">
-    <component :is="fieldset ? 'fieldset' : 'p'">
-      <div>
-        <div class="heading">
-          <template v-if="hideLabel === false">
-            <div class="label">
-              <component :is="fieldset ? 'legend' : 'label'" :for="field.field">
-                {{ field.name || $helpers.formatTitle(field.field)
-                }}<i
-                  v-tooltip="$t('required')"
-                  class="material-icons"
-                  v-if="field.required === true || field.required === '1'"
-                  >star</i
-                >
-              </component>
-              <label v-if="batchMode" class="batch-label">
-                <v-toggle
-                  :value="!blocked"
-                  @input="
-                    $emit(blocked ? 'activate' : 'deactivate', field.field)
-                  "
-                />
-              </label>
-            </div>
-          </template>
-          <small
-            v-if="!readonly && field.note"
-            v-html="$helpers.snarkdown(field.note)"
-          />
-        </div>
-        <div class="field-wrapper">
-          <v-ext-input
-            :id="field.interface || 'text-input'"
-            :name="name"
-            :required="field.required === true || field.required === '1'"
-            :readonly="readonly || blocked"
-            :options="field.options"
-            :type="field.type"
-            :datatype="field.datatype"
-            :value="values[field.field]"
-            :relation="relation"
-            :fields="fields"
-            :values="values"
-            :length="field.length"
-            :new-item="newItem"
-            @input="
-              readonly
-                ? null
-                : $emit('stage-value', {
-                    field: field.field,
-                    value: $event
-                  })
-            "
-            @setfield="
-              readonly
-                ? null
-                : $emit('stage-value', {
-                    field: $event.field,
-                    value: $event.value
-                  })
-            "
-          />
-          <div
-            class="blocker"
-            v-if="blocked"
-            @click="$emit('activate', field.field)"
-          />
-        </div>
-      </div>
-    </component>
+  <div>
+    <div v-if="showLabel" class="name">
+      <v-icon
+        v-if="field.note"
+        v-tooltip="$helpers.snarkdown(field.note)"
+        name="info"
+        size="18"
+        icon-style="outline"
+        class="note field-action"
+        color="darker-gray"
+      />
+      {{ field.name || $helpers.formatTitle(field.field) }}
+      <v-icon v-if="field.required !== false" class="required" name="star" color="light-gray" sup />
+      <v-contextual-menu
+        v-if="field.readonly === false"
+        class="options field-action"
+        placement="bottom-start"
+        :options="options"
+        :icon="null"
+        @click="emitChange"
+      >
+        <v-icon name="arrow_drop_down" icon-style="outline" size="18" class="field-action" />
+      </v-contextual-menu>
+      <v-toggle
+        v-if="batchMode"
+        class="batch-toggle"
+        :value="!blocked"
+        @input="$emit(blocked ? 'activate' : 'deactivate', field.field)"
+      />
+    </div>
+
+    <div class="field">
+      <v-ext-input
+        :id="field.interface || 'text-input'"
+        :name="name"
+        :required="field.required"
+        :readonly="field.readonly || blocked"
+        :options="field.options"
+        :type="field.type"
+        :datatype="field.datatype"
+        :value="value"
+        :relation="relation"
+        :fields="fields"
+        :collection="collection"
+        :values="values"
+        :length="field.length"
+        :new-item="newItem"
+        @input="
+          $emit('stage-value', {
+            field: field.field,
+            value: $event
+          })
+        "
+        @setfield="
+          $emit('stage-value', {
+            field: $event.field,
+            value: $event.value
+          })
+        "
+      />
+    </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: "v-field",
+  name: "VField",
   props: {
+    name: {
+      type: String,
+      required: true
+    },
     field: {
+      type: Object,
+      required: true
+    },
+    fields: {
       type: Object,
       required: true
     },
@@ -84,9 +83,9 @@ export default {
       type: Object,
       required: true
     },
-    readonly: {
-      type: Boolean,
-      default: false
+    collection: {
+      type: String,
+      default: null
     },
     blocked: {
       type: Boolean,
@@ -96,136 +95,139 @@ export default {
       type: Boolean,
       default: false
     },
-    fields: {
-      type: Object,
-      required: true
-    },
     newItem: {
       type: Boolean,
       default: false
-    },
-    name: {
-      type: String,
-      required: true
     }
   },
+
+  data() {
+    return {
+      initialValue: this.values[this.field.field]
+    };
+  },
+
   computed: {
-    fieldset() {
-      const interfaceInfo = this.$store.state.extensions.interfaces[
-        this.field.interface
-      ];
-
-      return (interfaceInfo && interfaceInfo.fieldset) || false;
-    },
-    hideLabel() {
+    showLabel() {
       const interfaceName = this.field.interface;
-      const interfaceMeta = this.$store.state.extensions.interfaces[
-        interfaceName
-      ];
+      const interfaceMeta = this.getInterfaceMeta(interfaceName);
 
-      if (!interfaceMeta) return false;
+      // In case the current field doesn 't have an interface setup
+      if (!interfaceMeta) return true;
 
-      if (interfaceMeta && interfaceMeta.hideLabel)
-        return interfaceMeta.hideLabel;
+      const hideLabel = interfaceMeta.hideLabel;
 
-      return false;
+      if (hideLabel === true) return false;
+
+      return true;
     },
+
     relation() {
       const { collection, field, type } = this.field;
 
-      if (type.toLowerCase() === "m2o")
-        return this.$store.getters.m2o(collection, field);
-      if (type.toLowerCase() === "o2m")
-        return this.$store.getters.o2m(collection, field);
-      if (type.toLowerCase() === "translation")
-        return this.$store.getters.o2m(collection, field);
+      if (type.toLowerCase() === "m2o") return this.$store.getters.m2o(collection, field);
+      if (type.toLowerCase() === "o2m") return this.$store.getters.o2m(collection, field);
+      if (type.toLowerCase() === "translation") return this.$store.getters.o2m(collection, field);
       return null;
+    },
+
+    isChanged() {
+      return this.value !== this.initialValue;
+    },
+
+    isDefault() {
+      const defaultValue = this.field.default_value;
+      return this.value === defaultValue;
+    },
+
+    value() {
+      return this.values[this.field.field];
+    },
+
+    options() {
+      return {
+        setNull: {
+          text: this.$t("clear_value"),
+          icon: "delete_outline",
+          disabled: this.value === null
+        },
+        reset: {
+          text: this.$t("reset_to_default"),
+          icon: "settings_backup_restore",
+          disabled: this.isDefault === true
+        },
+        clear: {
+          text: this.$t("undo_changes"),
+          icon: "undo",
+          disabled: this.isChanged === false
+        }
+      };
+    }
+  },
+
+  methods: {
+    getInterfaceMeta(interfaceName) {
+      const interfaceMeta = this.$store.state.extensions.interfaces[interfaceName];
+
+      return interfaceMeta || undefined;
+    },
+
+    emitChange(action) {
+      let value;
+
+      switch (action) {
+        case "setNull":
+          value = null;
+          break;
+        case "clear":
+          value = this.initialValue;
+          break;
+        case "reset":
+          value = this.field.default_value;
+          break;
+      }
+
+      this.$emit("stage-value", {
+        field: this.field.field,
+        value: value
+      });
     }
   }
 };
 </script>
 
-<style lang="scss" scoped>
-.heading {
-  margin-bottom: 14px;
-}
-.field-wrapper {
-  position: relative;
-}
-
-label,
-legend {
-  text-transform: none;
-  color: var(--darker-gray);
-  font-size: 1.2rem;
-  line-height: 1.1;
-  font-weight: 400;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
+<style scoped>
+.name {
+  font-size: var(--size-2);
+  margin-bottom: 10px;
+  color: var(--darkest-gray);
 }
 
-label.batch-label {
-  overflow: initial;
-  display: flex;
-}
-
-fieldset,
-p {
-  border: 0;
-  padding: 0;
-}
-
-fieldset > div,
-p {
-  display: flex;
-  flex-direction: column;
-}
-
-small {
-  order: 2;
-  display: block;
-  margin-top: 4px;
-  font-style: italic;
-  font-size: 12px;
-  line-height: 1.5em;
+.field-action {
+  transition: all var(--fast) var(--transition);
   color: var(--light-gray);
-}
-
-.label {
-  display: flex;
-  align-items: center;
-
-  > * {
-    display: inline-block;
-    max-width: max-content;
-
-    &:first-child {
-      margin-right: 10px;
-    }
-  }
-
-  i {
-    color: var(--accent);
-    vertical-align: super;
-    font-size: 7px;
-  }
-}
-
-.blocker {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  background-color: var(--body-background);
-  opacity: 0.7;
-  transition: opacity var(--fast) var(--transition-out);
-  cursor: pointer;
-
+  vertical-align: -4px;
   &:hover {
-    opacity: 0.3;
-    transition: opacity var(--fast) var(--transition-in);
+    color: var(--darker-gray);
   }
+}
+
+.note {
+  cursor: help;
+}
+
+.batch-toggle {
+  display: inline-block;
+  vertical-align: -4px;
+  margin-left: 4px;
+}
+
+.options {
+  display: inline-block;
+  margin-left: -3px;
+}
+
+.required {
+  margin-left: -0.5ch;
 }
 </style>

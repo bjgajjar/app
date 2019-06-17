@@ -1,20 +1,15 @@
 <template>
   <v-modal
-    :title="
-      $t('duplicating_field') + ': ' + $helpers.formatTitle(fieldInfo.field)
-    "
+    :title="$t('duplicating_field') + ': ' + $helpers.formatTitle(fieldInfo.field)"
     :buttons="buttons"
     @save="saveField()"
     @close="$emit('close')"
   >
-    <form @submit.prevent class="options">
+    <form class="options" @submit.prevent>
       <div class="options">
-        <label
-          >{{ $t("collection")
-          }}<i v-tooltip="$t('required')" class="material-icons required"
-            >star</i
-          >
-          <v-simple-select required v-model="selectedCollection">
+        <label>
+          {{ $t("collection") }}
+          <v-simple-select v-model="selectedCollection" required>
             <option
               v-for="collection in Object.keys(this.collections)"
               :key="collection"
@@ -27,18 +22,16 @@
         </label>
       </div>
       <div class="options">
-        <label
-          >{{ $t("field") + " " + $t("name")
-          }}<i v-tooltip="$t('required')" class="material-icons required"
-            >star</i
-          >
+        <label>
+          {{ $t("field") + " " + $t("name") }}
           <v-input
-            required
             v-model="field"
+            required
             :value="field"
             :placeholder="fieldInfo.field"
             :icon-right="iconToShow.icon"
             :icon-right-color="iconToShow.color"
+            :icon-right-tooltip="iconToShow.tooltip"
           />
         </label>
         <p class="small-text">
@@ -52,7 +45,7 @@
 
 <script>
 export default {
-  name: "v-field-duplicate",
+  name: "VFieldDuplicate",
   props: {
     collectionInformation: {
       type: Object,
@@ -85,25 +78,26 @@ export default {
       if (this.isFieldValid) {
         return { icon: "done", color: "success" };
       }
-      return { icon: "error", color: "danger" };
+      return {
+        icon: "error",
+        color: "danger",
+        tooltip: this.$t("field_already_exists", { field: "'" + this.field + "'" })
+      };
     },
     isFieldValid() {
       let isValid = true;
-      Object.keys(this.collections[this.selectedCollection].fields).forEach(
-        field => {
-          if (field === this.field) {
-            isValid = false;
-          }
+      Object.keys(this.collections[this.selectedCollection].fields).forEach(field => {
+        if (field === this.field) {
+          isValid = false;
         }
-      );
+      });
       if (isValid) {
         return true;
       }
       return false;
     },
     collectionFieldCount() {
-      return Object.keys(this.collections[this.selectedCollection].fields)
-        .length;
+      return Object.keys(this.collections[this.selectedCollection].fields).length;
     },
     collections() {
       const collections = Object.assign({}, this.$store.state.collections);
@@ -174,7 +168,7 @@ form.options {
   }
 
   .required {
-    color: var(--accent);
+    color: var(--darkest-gray);
     vertical-align: super;
     font-size: 7px;
   }

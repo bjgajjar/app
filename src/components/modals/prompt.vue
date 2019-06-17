@@ -28,8 +28,9 @@
           :loading="loading"
           :disabled="required && disabled"
           @click="$emit('confirm')"
-          >{{ confirmText || $t("ok") }}</v-button
         >
+          {{ confirmText || $t("ok") }}
+        </v-button>
       </div>
     </div>
   </v-modal-base>
@@ -39,7 +40,10 @@
 import VModalBase from "./modal-base.vue";
 
 export default {
-  name: "v-prompt",
+  name: "VPrompt",
+  components: {
+    VModalBase
+  },
   props: {
     message: {
       type: String,
@@ -78,9 +82,6 @@ export default {
       default: false
     }
   },
-  components: {
-    VModalBase
-  },
   computed: {
     disabled() {
       return this.value == null || this.value.length === 0;
@@ -95,7 +96,8 @@ export default {
           .replace(/[^\w_]+/g, "") // Remove all non-word chars
           .replace(/__+/g, "_") // Replace multiple _ with single _
           .replace(/^_+/, "") // Trim _ from start of text
-          .replace(/_+$/, ""); // Trim _ from end of text
+          .replace(/_+$/, "") // Trim _ from end of text
+          .toLowerCase();
       }
 
       this.$emit("input", val);

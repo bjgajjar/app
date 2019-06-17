@@ -27,18 +27,18 @@
         :cy="radius"
       />
     </svg>
-    <i
+    <v-icon
       v-if="icon"
       class="material-icons"
       :style="{ fontSize: iconSize, color: `var(--${color})` }"
-      >{{ icon }}</i
-    >
+      :name="icon"
+    />
   </div>
 </template>
 
 <script>
 export default {
-  name: "v-progress-ring",
+  name: "VProgressRing",
   props: {
     radius: {
       type: Number,

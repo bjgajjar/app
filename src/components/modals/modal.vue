@@ -24,11 +24,11 @@
             <header v-if="title">
               <h1 id="modal-title" class="style-1">{{ title }}</h1>
               <button v-if="!actionRequired" @click="$emit('close')">
-                <i class="material-icons">close</i>
+                <v-icon name="close" />
               </button>
             </header>
 
-            <div class="tabs" v-if="tabs">
+            <div v-if="tabs" class="tabs">
               <button
                 v-for="(info, id) in tabs"
                 :key="id"
@@ -60,13 +60,14 @@
               </button>
               <v-button
                 v-for="(button, id) in buttons"
-                class="confirm"
                 :key="id"
+                class="confirm"
                 :loading="button.loading || false"
                 :disabled="button.disabled || false"
                 @click="$emit(id)"
-                >{{ button.text }}</v-button
               >
+                {{ button.text }}
+              </v-button>
             </div>
           </div>
         </aside>
@@ -79,7 +80,7 @@
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 
 export default {
-  name: "v-modal",
+  name: "VModal",
   props: {
     actionRequired: {
       type: Boolean,
@@ -106,12 +107,6 @@ export default {
       default: false
     }
   },
-  mounted() {
-    disableBodyScroll(this.$refs.modal);
-  },
-  beforeDestroy() {
-    enableBodyScroll(this.$refs.modal);
-  },
   watch: {
     /*
      * Focus on the first input in the currently rendered tab on change of tab
@@ -124,6 +119,12 @@ export default {
         this.$refs.tabsBody.querySelector("input").focus();
       }, 0);
     }
+  },
+  mounted() {
+    disableBodyScroll(this.$refs.modal);
+  },
+  beforeDestroy() {
+    enableBodyScroll(this.$refs.modal);
   }
 };
 </script>
@@ -166,7 +167,7 @@ export default {
   position: relative;
   margin: 0 auto;
   width: 90%;
-  max-width: 680px;
+  max-width: 690px;
   background-color: var(--white);
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
@@ -203,16 +204,16 @@ export default {
   }
 
   header {
-    border-bottom: 1px solid var(--lightest-gray);
     position: sticky;
     top: 0;
-    height: 60px;
+    height: 64px;
+    background-color: var(--lightest-gray);
   }
 
   .body {
     overflow: auto;
     -webkit-overflow-scrolling: touch;
-    height: 70vh;
+    max-height: 70vh;
     position: relative;
     background-color: var(--body-background);
 
@@ -223,8 +224,8 @@ export default {
   }
 
   .footer {
-    border-top: 1px solid var(--lightest-gray);
-    height: 60px;
+    border-top: 2px solid var(--lightest-gray);
+    height: 64px;
   }
 
   button:not(.confirm) {
@@ -262,7 +263,7 @@ export default {
   padding: 0;
   list-style: none;
   justify-content: center;
-  border-bottom: 1px solid var(--lightest-gray);
+  border-bottom: 2px solid var(--lightest-gray);
   position: sticky;
   top: 0;
   background-color: var(--white);
@@ -273,14 +274,14 @@ export default {
     flex-shrink: 1;
     max-width: 120px;
     flex-basis: 120px;
-    height: 50px;
+    height: 48px;
     position: relative;
     color: var(--gray);
 
     text-decoration: none;
     text-transform: uppercase;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 500;
     position: relative;
 
     &:hover {
@@ -292,18 +293,18 @@ export default {
       display: block;
       width: 100%;
       position: absolute;
-      height: 3px;
+      height: 2px;
       bottom: -2px;
-      background-color: var(--accent);
+      background-color: var(--darkest-gray);
       transform: scaleY(0);
       transition: transform var(--fast) var(--transition-out);
     }
 
     &.active {
-      color: var(--accent);
+      color: var(--darker-gray);
 
       &:hover {
-        color: var(--accent);
+        color: var(--darkest-gray);
       }
 
       &::after {

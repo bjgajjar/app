@@ -1,63 +1,59 @@
 <template>
   <v-popover placement="right-start" offset="5">
     <button class="box" :class="[{ none: value === null }, value]">
-      <i v-if="value === 'none'" class="material-icons">close</i>
-      <i v-else-if="value === 'mine'" class="material-icons">person</i>
-      <i v-else-if="value === 'role'" class="material-icons">group</i>
-      <i v-else-if="value === 'full'" class="material-icons">check</i>
-      <i v-else-if="value === 'read'" class="material-icons">remove_red_eye</i>
-      <i v-else-if="value === 'create'" class="material-icons">add</i>
-      <i v-else-if="value === 'update'" class="material-icons">edit</i>
-      <i v-else-if="value === 'always'" class="material-icons">announcement</i>
-      <i v-else-if="value === 'indeterminate'" class="material-icons">remove</i>
+      <v-icon v-if="value === 'none'" class="icon" name="close" size="16" />
+      <v-icon v-else-if="value === 'mine'" class="icon" name="person" size="16" />
+      <v-icon v-else-if="value === 'role'" class="icon" name="group" size="16" />
+      <v-icon v-else-if="value === 'full'" class="icon" name="check" size="16" />
+      <v-icon v-else-if="value === 'read'" class="icon" name="remove_red_eye" size="16" />
+      <v-icon v-else-if="value === 'create'" class="icon" name="add" size="16" />
+      <v-icon v-else-if="value === 'update'" class="icon" name="edit" size="16" />
+      <v-icon v-else-if="value === 'always'" class="icon" name="announcement" size="16" />
+      <v-icon v-else-if="value === 'indeterminate'" class="icon" name="remove" size="16" />
     </button>
     <template slot="popover">
       <div class="popover-content">
         <button
-          v-close-popover
           v-for="option in options"
           :key="option"
+          v-close-popover
           @click="$emit('input', option)"
         >
           <div class="box" :class="option">
-            <i v-if="option === 'none'" class="material-icons">close</i>
-            <i v-else-if="option === 'mine'" class="material-icons">person</i>
-            <i v-else-if="option === 'role'" class="material-icons">group</i>
-            <i v-else-if="option === 'full'" class="material-icons">check</i>
-            <i v-else-if="option === 'read'" class="material-icons"
-              >remove_red_eye</i
-            >
-            <i v-else-if="option === 'create'" class="material-icons">add</i>
-            <i v-else-if="option === 'update'" class="material-icons">edit</i>
-            <i v-else-if="option === 'always'" class="material-icons"
-              >announcement</i
-            >
+            <v-icon v-if="option === 'none'" class="icon" name="close" size="16" />
+            <v-icon v-else-if="option === 'mine'" class="icon" name="person" size="16" />
+            <v-icon v-else-if="option === 'role'" class="icon" name="group" size="16" />
+            <v-icon v-else-if="option === 'full'" class="icon" name="check" size="16" />
+            <v-icon v-else-if="option === 'read'" class="icon" name="remove_red_eye" size="16" />
+            <v-icon v-else-if="option === 'create'" class="icon" name="add" size="16" />
+            <v-icon v-else-if="option === 'update'" class="icon" name="edit" size="16" />
+            <v-icon v-else-if="option === 'always'" class="icon" name="announcement" size="16" />
           </div>
 
-          <template v-if="option === 'none'">{{
-            $t("permission_states.none")
-          }}</template>
-          <template v-if="option === 'mine'">{{
-            $t("permission_states.mine")
-          }}</template>
-          <template v-if="option === 'role'">{{
-            $t("permission_states.role")
-          }}</template>
-          <template v-if="option === 'full'">{{
-            $t("permission_states.full")
-          }}</template>
-          <template v-if="option === 'read'">{{
-            $t("permission_states.read")
-          }}</template>
-          <template v-if="option === 'create'">{{
-            $t("permission_states.create")
-          }}</template>
-          <template v-if="option === 'update'">{{
-            $t("permission_states.update")
-          }}</template>
-          <template v-if="option === 'always'">{{
-            $t("permission_states.always")
-          }}</template>
+          <template v-if="option === 'none'">
+            {{ $t("permission_states.none") }}
+          </template>
+          <template v-if="option === 'mine'">
+            {{ $t("permission_states.mine") }}
+          </template>
+          <template v-if="option === 'role'">
+            {{ $t("permission_states.role") }}
+          </template>
+          <template v-if="option === 'full'">
+            {{ $t("permission_states.full") }}
+          </template>
+          <template v-if="option === 'read'">
+            {{ $t("permission_states.read") }}
+          </template>
+          <template v-if="option === 'create'">
+            {{ $t("permission_states.create") }}
+          </template>
+          <template v-if="option === 'update'">
+            {{ $t("permission_states.update") }}
+          </template>
+          <template v-if="option === 'always'">
+            {{ $t("permission_states.always") }}
+          </template>
         </button>
       </div>
     </template>
@@ -66,7 +62,7 @@
 
 <script>
 export default {
-  name: "permission-toggle",
+  name: "PermissionToggle",
   props: {
     options: {
       type: Array,
@@ -93,16 +89,16 @@ export default {
   position: relative;
 }
 
-i {
+.icon {
   position: relative;
   top: -1px;
-  left: -0.5px;
+  left: 0px;
   font-size: 16px;
   color: var(--white);
 }
 
 .none {
-  border-color: var(--red);
+  border-color: var(--lighter-gray);
 }
 
 .mine {
@@ -116,8 +112,8 @@ i {
 }
 
 .full {
-  background-color: var(--accent);
-  border-color: var(--accent);
+  background-color: var(--success);
+  border-color: var(--success);
 }
 
 .read {
@@ -126,13 +122,13 @@ i {
 }
 
 .create {
-  background-color: var(--yellow-700);
-  border-color: var(--yellow-700);
+  background-color: var(--orange);
+  border-color: var(--orange);
 }
 
 .update {
-  background-color: var(--success);
-  border-color: var(--success);
+  background-color: var(--orange);
+  border-color: var(--orange);
 }
 
 .always {

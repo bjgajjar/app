@@ -6,11 +6,11 @@ import VueTimeago from "vue-timeago";
 import PortalVue from "portal-vue";
 import axios from "axios";
 import meta from "vue-meta";
-import en from "date-fns/locale/en/";
+import en from "vue-timeago/node_modules/date-fns/locale/en/";
+import fr from "vue-timeago/node_modules/date-fns/locale/fr/";
 import VueTheMask from "vue-the-mask";
 
-import "./assets/global.scss";
-import "./assets/tooltip.scss";
+import "./design/main.scss";
 import "./globals";
 import "./helpers/handle-focus";
 import "./helpers/handle-drag";
@@ -25,8 +25,8 @@ import helpers from "./helpers";
 import notify from "./notifications";
 import events from "./events/";
 
-// Create a default config when the config file is missing. This allows the app
-// to work even when the configuration hasn't been set
+// Create a default config when the config file is missing.
+// This allows the app to work even when no configuration was set
 const defaultConfig = {
   api: {},
   allowOtherAPI: true,
@@ -38,11 +38,21 @@ window.__DirectusConfig__ = window.__DirectusConfig__ || defaultConfig;
 
 Vue.config.productionTip = false;
 
+// Make lodash globally available under it's common name `_`
+window._ = lodash;
+
 Object.defineProperties(Vue.prototype, {
-  $lodash: { value: lodash },
   $api: { value: api },
   $notify: { value: notify },
-  $axios: { value: axios }
+  $axios: { value: axios },
+
+  // TODO: Remove this in/after 7.4
+  $lodash: {
+    get() {
+      console.warn("[Directus] this.$lodash is deprecated. Use _ instead.");
+      return _;
+    }
+  }
 });
 
 Vue.use(events);
@@ -55,7 +65,8 @@ Vue.use(VueTimeago, {
   name: "v-timeago",
   locale: "en-US",
   locales: {
-    en
+    "en-US": en,
+    "fr-FR": fr
   }
 });
 Vue.use(VueTheMask);
@@ -72,7 +83,4 @@ new Vue({
   helpers
 }).$mount("#app");
 
-store.watch(
-  state => state.currentUser.locale,
-  locale => loadLanguageAsync(locale)
-);
+store.watch(state => state.currentUser.locale, locale => loadLanguageAsync(locale));

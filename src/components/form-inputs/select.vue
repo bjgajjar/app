@@ -2,30 +2,27 @@
   <div :class="{ icon }" class="v-select">
     <select
       v-if="other"
-      :disabled="disabled || readonly"
       :id="otherActive ? null : id"
+      :disabled="disabled || readonly"
       :value="value"
       @change="change($event.target.value)"
     >
       <optgroup :label="$t('values')">
-        <option
-          v-for="(key, value) in parsedOptions"
-          :key="value"
-          :value="value"
-          >{{ key }}</option
-        >
+        <option v-for="(key, value) in parsedOptions" :key="value" :value="value">
+          {{ key }}
+        </option>
       </optgroup>
       <optgroup :label="$t('other')">
-        <option :value="customValue || '__other'" :selected="otherActive">{{
-          customValue.length ? customValue : $t("enter_value")
-        }}</option>
+        <option :value="customValue || '__other'" :selected="otherActive">
+          {{ customValue.length ? customValue : $t("enter_value") }}
+        </option>
       </optgroup>
     </select>
     <select
       v-else
+      :id="otherActive ? null : id"
       ref="select"
       :disabled="disabled || readonly"
-      :id="otherActive ? null : id"
       :value="value"
       @change="change($event.target.value)"
     >
@@ -37,33 +34,32 @@
         :key="optionValue"
         :value="optionValue"
         :selected="value == optionValue"
-        >{{ key }}</option
       >
+        {{ key }}
+      </option>
     </select>
     <input
       v-if="otherActive"
+      :id="id"
       ref="input"
       :type="type"
       :value="customValue"
-      :id="id"
       :placeholder="placeholder"
       autofocus
       @input="changeCustom"
     />
     <div class="value">
-      <i v-if="icon" class="material-icons">{{ icon }}</i>
-      <span v-if="placeholder && !value" class="placeholder">{{
-        placeholder
-      }}</span>
+      <v-icon v-if="icon" :name="icon" />
+      <span v-if="placeholder && !value" class="placeholder">{{ placeholder }}</span>
       <span class="no-wrap">{{ parsedOptions[value] }}</span>
     </div>
-    <i class="material-icons chevron">arrow_drop_down</i>
+    <v-icon class="chevron" name="arrow_drop_down" />
   </div>
 </template>
 
 <script>
 export default {
-  name: "v-select",
+  name: "VSelect",
   props: {
     disabled: {
       type: Boolean,
@@ -99,7 +95,7 @@ export default {
       default: ""
     },
     options: {
-      type: [Object, String],
+      type: [Object, String, Array],
       required: true
     },
     placeholder: {
@@ -163,6 +159,7 @@ export default {
     height: 100%;
     opacity: 0;
     cursor: pointer;
+    appearance: none;
   }
 
   .value,
@@ -246,7 +243,7 @@ export default {
   input:hover:not(:disabled):focus + div,
   input:hover:not(:disabled):focus {
     color: var(--dark-gray);
-    border-color: var(--accent);
+    border-color: var(--dark-gray);
     outline: 0;
   }
 

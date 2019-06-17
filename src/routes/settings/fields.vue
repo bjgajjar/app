@@ -1,18 +1,19 @@
 <template>
   <not-found v-if="!collectionInfo" />
-  <div class="settings-fields" v-else>
-    <v-header :breadcrumb="breadcrumb">
+  <div v-else class="settings-fields">
+    <v-header :breadcrumb="breadcrumb" :icon-link="`/settings/collections`" icon-color="warning">
       <template slot="buttons">
         <v-header-button
-          icon="delete_outline"
           key="delete"
-          color="danger"
+          icon="delete_outline"
+          color="gray"
+          hover-color="danger"
           :label="$t('delete')"
           @click="confirmRemove = true"
         />
         <v-header-button
-          icon="check"
           key="save"
+          icon="check"
           color="action"
           :loading="saving"
           :disabled="Object.keys(edits).length === 0"
@@ -22,89 +23,58 @@
       </template>
     </v-header>
 
-    <label class="label "
-      >{{ $t("fields") }}
-      <em class="notice">{{ $t("fields_are_saved_instantly") }}</em></label
-    >
-
+    <label class="label">{{ $t("fields") }}</label>
+    <v-notice color="warning" icon="warning">{{ $t("fields_are_saved_instantly") }}</v-notice>
     <div class="table">
       <div class="header">
         <div class="row">
-          <div class="drag"><i class="material-icons">swap_vert</i></div>
+          <div class="drag"><v-icon name="swap_vert" /></div>
           <div>{{ $t("field") }}</div>
           <div>{{ $t("interface") }}</div>
         </div>
       </div>
       <div class="body" :class="{ dragging }">
         <draggable v-model="fields" @start="startSort" @end="saveSort">
-          <div class="row" v-for="field in fields" :key="field.field">
-            <div class="drag"><i class="material-icons">drag_handle</i></div>
-            <div class="inner row" @click.stop="startEditingField(field)">
+          <div v-for="field in fields" :key="field.field" class="row">
+            <div class="drag"><v-icon name="drag_handle" /></div>
+            <div
+              class="inner row"
+              :style="{ cursor: field.interface ? 'inherit' : 'default' }"
+              @click.stop="field.interface ? startEditingField(field) : false"
+            >
               <div>
                 {{ $helpers.formatTitle(field.field) }}
-                <i
-                  v-tooltip="$t('required')"
-                  class="material-icons required"
-                  v-if="field.required === true || field.required === '1'"
-                  >star</i
-                >
-                <i
-                  v-tooltip="$t('primary_key')"
-                  class="material-icons key"
-                  v-if="field.primary_key"
-                  >vpn_key</i
-                >
               </div>
               <div>
                 {{
-                  ($store.state.extensions.interfaces[field.interface] &&
-                    $store.state.extensions.interfaces[field.interface].name) ||
-                    "--"
+                  $store.state.extensions.interfaces[field.interface] &&
+                    $store.state.extensions.interfaces[field.interface].name
                 }}
+                <v-button
+                  v-if="!field.interface"
+                  class="not-managed"
+                  :loading="toManage.includes(field.field)"
+                  @click="manageField(field)"
+                >
+                  {{ $t("manage") }}
+                </v-button>
               </div>
             </div>
-            <v-popover
+            <v-contextual-menu
+              v-if="canDuplicate(field.interface) || fields.length > 1"
               class="more-options"
               placement="left-start"
-              v-if="canDuplicate(field.interface) || fields.length > 1"
-            >
-              <button type="button" class="menu-toggle">
-                <i class="material-icons">more_vert</i>
-              </button>
-              <template slot="popover">
-                <ul class="ctx-menu">
-                  <li>
-                    <button
-                      v-close-popover
-                      type="button"
-                      @click.stop="duplicateField(field)"
-                      :disabled="!canDuplicate(field.interface)"
-                    >
-                      <i class="material-icons">control_point_duplicate</i>
-                      {{ $t("duplicate") }}
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      v-close-popover
-                      :disabled="fields.length === 1"
-                      type="button"
-                      @click.stop="warnRemoveField(field.field)"
-                    >
-                      <i class="material-icons">close</i> {{ $t("delete") }}
-                    </button>
-                  </li>
-                </ul>
-              </template>
-            </v-popover>
+              :options="fieldOptions(field)"
+              @click="fieldOptionsClicked(field, $event)"
+            ></v-contextual-menu>
           </div>
         </draggable>
       </div>
     </div>
 
-    <v-button @click="startEditingField({})" class="new-field"
-      >New Field</v-button
-    >
+    <v-button class="new-field" @click="startEditingField({})">
+      {{ $t("new_field") }}
+    </v-button>
 
     <v-form
       v-if="fields"
@@ -114,7 +84,7 @@
       @stage-value="stageValue"
     />
 
-    <portal to="modal" v-if="confirmRemove">
+    <portal v-if="confirmRemove" to="modal">
       <v-confirm
         color="danger"
         :message="$t('delete_collection_are_you_sure')"
@@ -124,7 +94,7 @@
       />
     </portal>
 
-    <portal to="modal" v-if="confirmFieldRemove">
+    <portal v-if="confirmFieldRemove" to="modal">
       <v-confirm
         color="danger"
         :message="$t('delete_field_are_you_sure', { field: fieldToBeRemoved })"
@@ -154,6 +124,7 @@
 </template>
 
 <script>
+import { datatypes } from "../../type-map";
 import { keyBy } from "lodash";
 import formatTitle from "@directus/format-title";
 import shortid from "shortid";
@@ -164,7 +135,7 @@ import VFieldSetup from "../../components/field-setup.vue";
 import VFieldDuplicate from "../../components/field-duplicate.vue";
 
 export default {
-  name: "settings-fields",
+  name: "SettingsFields",
   metaInfo() {
     return {
       title: `${this.$t("settings")} | ${this.$t("editing", {
@@ -185,6 +156,7 @@ export default {
   },
   data() {
     return {
+      toManage: [],
       duplicateInterfaceBlacklist: [
         "primary-key",
         "many-to-many",
@@ -225,8 +197,7 @@ export default {
       return [
         {
           name: this.$t("settings"),
-          path: "/settings",
-          color: "warning"
+          path: "/settings"
         },
         {
           name: this.$t("collections_and_fields"),
@@ -255,6 +226,25 @@ export default {
     }
   },
   methods: {
+    manageField(field) {
+      this.toManage.push(field.field);
+      const databaseVendor = this.$store.state.serverInfo.databaseVendor;
+      const suggestedInterface = datatypes[databaseVendor][field.datatype].fallbackInterface;
+      const fieldInfo = {
+        field: field.field,
+        sort: field.sort,
+        interface: suggestedInterface
+      };
+      const result = {
+        fieldInfo,
+        relation: null
+      };
+      this.setFieldSettings(result).then(async () => {
+        await this.$store.dispatch("getCollections");
+        field.interface = suggestedInterface;
+        this.toManage.splice(this.toManage.indexOf(field.field), 1);
+      });
+    },
     remove() {
       const id = this.$helpers.shortid.generate();
       this.$store.dispatch("loadingStart", { id });
@@ -323,9 +313,10 @@ export default {
       this.$set(this.edits, field, value);
     },
     canDuplicate(fieldInterface) {
-      return (
-        this.duplicateInterfaceBlacklist.includes(fieldInterface) === false
-      );
+      if (!fieldInterface) {
+        return false;
+      }
+      return this.duplicateInterfaceBlacklist.includes(fieldInterface) === false;
     },
     duplicateFieldSettings({ fieldInfo, collection }) {
       const requests = [];
@@ -373,9 +364,9 @@ export default {
     setFieldSettings({ fieldInfo, relation }) {
       this.fieldSaving = true;
 
-      const existingField = this.$store.state.collections[
-        this.collection
-      ].fields.hasOwnProperty(fieldInfo.field);
+      const existingField = this.$store.state.collections[this.collection].fields.hasOwnProperty(
+        fieldInfo.field
+      );
 
       const requests = [];
 
@@ -383,9 +374,7 @@ export default {
       this.$store.dispatch("loadingStart", { id });
 
       if (existingField) {
-        requests.push(
-          this.$api.updateField(this.collection, fieldInfo.field, fieldInfo)
-        );
+        requests.push(this.$api.updateField(this.collection, fieldInfo.field, fieldInfo));
       } else {
         delete fieldInfo.id;
         fieldInfo.collection = this.collection;
@@ -432,10 +421,7 @@ export default {
               iconMain: "check"
             });
 
-            this.$store.dispatch("updateField", {
-              collection: this.collection,
-              field: savedFieldInfo
-            });
+            this.$store.dispatch("getCollections");
           } else {
             this.fields = [...this.fields, savedFieldInfo];
 
@@ -447,10 +433,7 @@ export default {
               iconMain: "check"
             });
 
-            this.$store.dispatch("addField", {
-              collection: this.collection,
-              field: savedFieldInfo
-            });
+            this.$store.dispatch("getCollections");
           }
 
           if (relation) {
@@ -484,6 +467,30 @@ export default {
         .finally(() => {
           this.fieldSaving = false;
         });
+    },
+    fieldOptions(field) {
+      return [
+        {
+          text: this.$t("duplicate"),
+          icon: "control_point_duplicate",
+          disabled: this.duplicateInterfaceBlacklist.includes(field.interface)
+        },
+        {
+          text: this.$t("delete"),
+          icon: "close"
+        }
+      ];
+    },
+    fieldOptionsClicked(field, option) {
+      switch (option) {
+        case 0:
+          this.duplicateField(field);
+          break;
+        case 1:
+          this.warnRemoveField(field.field);
+          break;
+        default:
+      }
     },
     duplicateField(field) {
       this.fieldBeingDuplicated = field;
@@ -589,7 +596,7 @@ export default {
             directusFields.map(field => ({
               ...field,
               name: formatTitle(field.field),
-              note: vm.$t("note_" + field.field)
+              note: field.note
             })),
             "field"
           );
@@ -640,15 +647,11 @@ h2 {
   border-radius: var(--border-radius);
   border-spacing: 0;
   width: 100%;
-  max-width: 1000px;
+  max-width: 632px;
   margin: 10px 0 20px;
 
   .header {
-    color: var(--gray);
-    font-size: 10px;
-    text-transform: uppercase;
-    font-weight: 700;
-    border-bottom: 1px solid var(--lightest-gray);
+    border-bottom: 2px solid var(--lightest-gray);
     height: 60px;
     .row {
       height: 60px;
@@ -663,7 +666,7 @@ h2 {
       padding: 5px 5px;
 
       &:not(.drag):not(.more-options) {
-        flex-basis: 200px;
+        flex-basis: 260px;
       }
     }
   }
@@ -683,10 +686,10 @@ h2 {
   .dragging .sortable-chosen,
   .sortable-chosen:active {
     background-color: var(--highlight) !important;
-    color: var(--accent);
+    color: var(--darkest-gray);
 
     .manual-sort {
-      color: var(--accent);
+      color: var(--darkest-gray);
     }
   }
 
@@ -698,8 +701,8 @@ h2 {
     .row {
       cursor: pointer;
       position: relative;
-      height: 40px;
-      border-bottom: 1px solid var(--lightest-gray);
+      height: 48px;
+      border-bottom: 2px solid var(--off-white);
 
       &:last-of-type {
         border-bottom: none;
@@ -707,19 +710,6 @@ h2 {
 
       &:hover {
         background-color: var(--highlight);
-      }
-
-      .required {
-        color: var(--accent);
-        vertical-align: super;
-        font-size: 7px;
-      }
-
-      .key {
-        color: var(--light-gray);
-        font-size: 16px;
-        vertical-align: -3px;
-        margin-left: 2px;
       }
     }
 
@@ -765,18 +755,6 @@ em.note {
   display: block;
 }
 
-.notice {
-  margin-left: 4px;
-  background-color: var(--warning);
-  border-radius: var(--border-radius);
-  color: var(--white);
-  padding: 3px 6px;
-  text-transform: uppercase;
-  font-size: 11px;
-  font-weight: 600;
-  font-style: normal;
-}
-
 label.label {
   margin-bottom: 10px;
   text-transform: none;
@@ -789,7 +767,7 @@ label.label {
 .ctx-menu {
   list-style: none;
   padding: 0;
-  width: var(--width-small);
+  width: 136px;
 
   li {
     display: block;
@@ -805,7 +783,7 @@ label.label {
     display: flex;
     align-items: center;
     padding: 5px;
-    color: var(--darker-gray);
+    color: var(--gray);
     width: 100%;
     height: 100%;
     transition: color var(--fast) var(--transition);
@@ -817,13 +795,38 @@ label.label {
       }
     }
     &:not(:disabled):not(&[disabled]):hover {
-      color: var(--accent);
+      color: var(--darkest-gray);
       transition: none;
       i {
-        color: var(--accent);
+        color: var(--darkest-gray);
         transition: none;
       }
     }
   }
+}
+
+button {
+  &.not-managed {
+    padding: 5px 10px;
+    border-radius: var(--border-radius);
+    background-color: var(--darker-gray);
+    color: var(--white);
+
+    min-width: auto;
+    height: auto;
+    font-size: 14px;
+    line-height: 1.3;
+    font-weight: 200;
+    border: 0;
+
+    &:hover {
+      background-color: var(--darkest-gray);
+      color: var(--white);
+    }
+  }
+}
+
+.optional {
+  color: var(--lighter-gray);
 }
 </style>

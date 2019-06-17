@@ -1,0 +1,65 @@
+{
+  "name": "$t:o2m",
+  "version": "2.0.1",
+  "types": ["o2m"],
+  "options": {
+    "fields": {
+      "name": "$t:visible_columns",
+      "comment": "$t:visible_columns_comment",
+      "interface": "text-input",
+      "placeholder": "name,description"
+    },
+    "template": {
+      "name": "$t:template",
+      "comment": "$t:template_comment",
+      "interface": "text-input",
+      "options": {
+        "placeholder": "$t:template_placeholder"
+      }
+    },
+    "allow_create": {
+      "name": "$t:allow_create",
+      "comment": "$t:allow_create_comment",
+      "interface": "toggle",
+      "default": true
+    },
+    "allow_select": {
+      "name": "$t:allow_select",
+      "comment": "$t:allow_select_comment",
+      "interface": "toggle",
+      "default": true
+    }
+  },
+  "relation": "o2m",
+  "icon": "call_split",
+  "translation": {
+    "en-US": {
+      "o2m": "One to Many",
+      "select_items": "Select the items",
+      "relation_not_setup": "The relationship hasn't been configured correctly",
+      "visible_columns": "Visible Columns",
+      "visible_columns_comment": "Add a CSV of columns you want to display as preview",
+      "preferences": "Listing View Preferences",
+      "preferences_comment": "Set what options to use for the modal",
+      "template": "Display Template",
+      "template_comment": "How to format value on the item browse display",
+      "template_placeholder": "{{title}} — {{author}}",
+      "allow_create": "Allow Create",
+      "allow_create_comment": "Allow the user to create a new item from this interface",
+      "allow_select": "Allow Select",
+      "allow_select_comment": "Allow the user to select an existing item"
+    },
+    "fr-FR": {
+      "o2m": "Un-à-plusieurs (O2M)",
+      "select_items": "Sélection des élements",
+      "relation_not_setup": "La relation n'a pas été configurée correctement",
+      "visible_columns": "Colonnes visibles",
+      "visible_columns_comment": "Ajout d'une liste (SCV) de colonnes à afficher pour la prévisualisation",
+      "preferences": "Liste des préférence de visualisation",
+      "preferences_comment": "Sélectionne les options à utiliser dans la fenêtre",
+      "template": "Modèle de menu déroulant",
+      "template_comment": "Format des options du menu déroulant",
+      "template_placeholder": "{{title}} — {{author}}"
+    }
+  }
+}

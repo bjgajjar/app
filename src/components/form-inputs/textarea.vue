@@ -1,11 +1,11 @@
 <template>
   <textarea
+    :id="id"
     :cols="cols"
     :disabled="disabled"
     :maxlength="maxlength"
     :minlength="minlength"
     :name="name"
-    :id="id"
     :placeholder="placeholder"
     :readonly="readonly"
     :required="required"
@@ -22,7 +22,7 @@
 
 <script>
 export default {
-  name: "v-textarea",
+  name: "VTextarea",
   props: {
     cols: {
       type: Number,
@@ -117,12 +117,12 @@ textarea {
 
   &:focus:not(:read-only) {
     color: var(--dark-gray);
-    border-color: var(--accent);
+    border-color: var(--dark-gray);
     outline: 0;
   }
 
   &:focus:not(:read-only) + i {
-    color: var(--accent);
+    color: var(--dark-gray);
   }
 
   &:-webkit-autofill {

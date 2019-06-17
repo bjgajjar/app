@@ -1,17 +1,12 @@
 <template>
   <transition name="fade">
-    <div
-      :style="{ zIndex }"
-      class="blocker"
-      @click="$emit('click')"
-      @touchend="$emit('click')"
-    />
+    <div :style="{ zIndex }" class="blocker" @click="$emit('click')" @touchend="$emit('click')" />
   </transition>
 </template>
 
 <script>
 export default {
-  name: "blocker",
+  name: "Blocker",
   props: {
     zIndex: {
       type: Number,

@@ -1,14 +1,12 @@
 <template>
-  <div
-    :class="{ 'icon-left': iconLeft, 'icon-right': iconRight }"
-    class="v-input"
-  >
+  <div :class="{ 'icon-left': iconLeft, 'icon-right': iconRight }" class="v-input">
     <!-- Far from ideal, but it does the trick -->
 
     <input
       v-if="mask"
-      v-mask="mask"
+      :id="id"
       ref="input"
+      v-mask="mask"
       :class="{ charactercount }"
       :type="type"
       :autocomplete="autocomplete"
@@ -17,12 +15,12 @@
       :min="min"
       :minlength="minlength"
       :name="name"
+      :pattern="pattern"
       :placeholder="placeholder"
       :required="required"
       :readonly="readonly || disabled"
       :spellcheck="spellcheck"
       :value="value"
-      :id="id"
       :step="step"
       @keyup="$emit('keyup', $event)"
       @keydown="$emit('keydown', $event)"
@@ -31,6 +29,7 @@
 
     <input
       v-else
+      :id="id"
       ref="input"
       :class="{ charactercount }"
       :type="type"
@@ -40,31 +39,33 @@
       :min="min"
       :minlength="minlength"
       :name="name"
+      :pattern="pattern"
       :placeholder="placeholder"
       :required="required"
       :readonly="readonly || disabled"
       :spellcheck="spellcheck"
       :value="value"
-      :id="id"
       :step="step"
       @keyup="$emit('keyup', $event)"
       @keydown="$emit('keydown', $event)"
       @input="$emit('input', $event.target.value)"
     />
 
-    <i v-if="iconLeft" :class="iconLeftColor" class="material-icons">{{
-      iconLeft
-    }}</i>
-    <i v-if="iconRight" :class="iconRightColor" class="material-icons">{{
-      iconRight
-    }}</i>
+    <v-icon v-if="iconLeft" v-tooltip="iconLeftTooltip" :name="iconLeft" :color="iconLeftColor" />
+    <v-icon
+      v-if="iconRight"
+      v-tooltip="iconRightTooltip"
+      :name="iconRight"
+      :color="iconRightColor"
+    />
+
     <span v-if="charactercount">{{ charsRemaining }}</span>
   </div>
 </template>
 
 <script>
 export default {
-  name: "v-input",
+  name: "VInput",
   props: {
     type: {
       type: String,
@@ -98,6 +99,10 @@ export default {
       type: String,
       default: ""
     },
+    pattern: {
+      type: String,
+      default: ".*"
+    },
     placeholder: {
       type: String,
       default: ""
@@ -130,7 +135,6 @@ export default {
       type: [String, Number],
       default: 1
     },
-
     iconLeft: {
       type: String,
       default: ""
@@ -139,6 +143,10 @@ export default {
       type: String,
       default: null
     },
+    iconLeftTooltip: {
+      type: String,
+      default: ""
+    },
     iconRight: {
       type: String,
       default: ""
@@ -146,6 +154,10 @@ export default {
     iconRightColor: {
       type: String,
       default: null
+    },
+    iconRightTooltip: {
+      type: String,
+      default: ""
     },
     valid: {
       type: Boolean,
@@ -185,7 +197,6 @@ export default {
     color: var(--gray);
     padding: 10px;
     font-size: 1rem;
-    font-weight: 500;
     line-height: 1.5;
     text-transform: none;
     transition: var(--fast) var(--transition);
@@ -206,7 +217,6 @@ export default {
 
     &::placeholder {
       color: var(--lighter-gray);
-      font-weight: 500;
     }
 
     &:hover:not(:read-only) {
@@ -216,7 +226,7 @@ export default {
 
     &:focus:not(:read-only) {
       color: var(--dark-gray);
-      border-color: var(--accent);
+      border-color: var(--dark-gray);
       outline: 0;
     }
 
@@ -280,11 +290,7 @@ export default {
     font-size: 24px;
 
     &.accent {
-      color: var(--accent);
-    }
-
-    &.secondary {
-      color: var(--secondary);
+      color: var(--darkest-gray);
     }
 
     &.success {

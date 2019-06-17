@@ -1,6 +1,6 @@
 <template>
   <div class="settings-global">
-    <v-header :breadcrumb="links">
+    <v-header :breadcrumb="links" :icon-link="`/settings`" icon-color="warning">
       <template slot="buttons">
         <v-header-button
           :disabled="!editing"
@@ -13,7 +13,12 @@
       </template>
     </v-header>
 
-    <v-form :fields="fields" :values="values" @stage-value="stageValue" />
+    <v-form
+      :fields="fields"
+      :values="values"
+      collection="directus_settings"
+      @stage-value="stageValue"
+    />
   </div>
 </template>
 
@@ -21,7 +26,7 @@
 import { mapState } from "vuex";
 
 export default {
-  name: "settings-global",
+  name: "SettingsGlobal",
   metaInfo() {
     return {
       title: `${this.$t("settings")} | ${this.$t("settings_global")}`
@@ -48,8 +53,7 @@ export default {
       return [
         {
           name: this.$t("settings"),
-          path: "/settings",
-          color: "warning"
+          path: "/settings"
         },
         {
           name: this.$t("settings_global"),

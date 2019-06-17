@@ -1,7 +1,7 @@
 <template>
   <v-not-found v-if="notFound" />
-  <div class="route-file-library" v-else>
-    <v-header info-toggle :breadcrumb="breadcrumb">
+  <div v-else class="route-file-library">
+    <v-header info-toggle :breadcrumb="breadcrumb" icon="photo_library">
       <template slot="title">
         <button
           :class="currentBookmark ? 'active' : null"
@@ -9,9 +9,7 @@
           class="bookmark"
           @click="bookmarkModal = true"
         >
-          <i class="material-icons">
-            {{ currentBookmark ? "bookmark" : "bookmark_border" }}
-          </i>
+          <v-icon :name="currentBookmark ? 'bookmark' : 'bookmark_border'" />
         </button>
         <div v-if="currentBookmark" class="bookmark-name no-wrap">
           ({{ currentBookmark.title }})
@@ -21,7 +19,7 @@
         v-show="selection.length === 0 && !emptyCollection"
         :filters="filters"
         :search-query="searchQuery"
-        :field-names="fieldNames"
+        :field-names="filterableFieldNames"
         :placeholder="resultCopy"
         @filter="updatePreferences('filters', $event)"
         @search="updatePreferences('search_query', $event)"
@@ -45,8 +43,8 @@
           @click="confirmRemove = true"
         />
         <v-header-button
-          icon="add"
           key="add"
+          icon="add"
           color="action"
           :label="$t('new')"
           @click="newModal = true"
@@ -87,7 +85,7 @@
         :key="`${collection}-${viewType}`"
         :type="viewType"
         :collection="collection"
-        :fields="$lodash.keyBy(fields, 'field')"
+        :fields="keyBy(fields, 'field')"
         :view-options="viewOptions"
         :view-query="viewQuery"
         :selection="selection"
@@ -97,7 +95,7 @@
       />
     </v-info-sidebar>
 
-    <portal to="modal" v-if="confirmRemove">
+    <portal v-if="confirmRemove" to="modal">
       <v-confirm
         :message="
           $tc('batch_delete_confirm', selection.length, {
@@ -111,16 +109,16 @@
       />
     </portal>
 
-    <portal to="modal" v-if="bookmarkModal">
+    <portal v-if="bookmarkModal" to="modal">
       <v-prompt
-        :message="$t('name_bookmark')"
         v-model="bookmarkTitle"
+        :message="$t('name_bookmark')"
         @cancel="cancelBookmark"
         @confirm="saveBookmark"
       />
     </portal>
 
-    <portal to="modal" v-if="newModal">
+    <portal v-if="newModal" to="modal">
       <v-modal
         :title="$t('file_upload')"
         :buttons="{
@@ -148,7 +146,7 @@ import VNotFound from "./not-found.vue";
 import api from "../api";
 
 export default {
-  name: "route-file-library",
+  name: "RouteFileLibrary",
   metaInfo() {
     return {
       title: this.$t("file_library")
@@ -213,7 +211,7 @@ export default {
           view_type: bookmark.view_type,
           view_query: bookmark.view_query
         };
-        return this.$lodash.isEqual(bookmarkPreferences, preferences);
+        return _.isEqual(bookmarkPreferences, preferences);
       })[0];
       return currentBookmark || null;
     },
@@ -237,27 +235,18 @@ export default {
     },
     viewQuery() {
       if (!this.preferences) return {};
-      return (
-        (this.preferences.view_query &&
-          this.preferences.view_query[this.viewType]) ||
-        {}
-      );
+      return (this.preferences.view_query && this.preferences.view_query[this.viewType]) || {};
     },
     viewOptions() {
       if (!this.preferences) return {};
-      return (
-        (this.preferences.view_options &&
-          this.preferences.view_options[this.viewType]) ||
-        {}
-      );
+      return (this.preferences.view_options && this.preferences.view_options[this.viewType]) || {};
     },
     resultCopy() {
       if (!this.meta || !this.preferences) return this.$t("loading");
 
       const isFiltering =
-        !this.$lodash.isEmpty(this.preferences.filters) ||
-        (!this.$lodash.isNil(this.preferences.search_query) &&
-          this.preferences.search_query.length > 0);
+        !_.isEmpty(this.preferences.filters) ||
+        (!_.isNil(this.preferences.search_query) && this.preferences.search_query.length > 0);
 
       return isFiltering
         ? this.$tc("item_count_filter", this.meta.result_count, {
@@ -267,8 +256,8 @@ export default {
             count: this.$n(this.meta.total_count)
           });
     },
-    fieldNames() {
-      return this.fields.map(field => field.field);
+    filterableFieldNames() {
+      return this.fields.filter(field => field.datatype).map(field => field.field);
     },
     layoutNames() {
       if (!this.$store.state.extensions.layouts) return {};
@@ -279,7 +268,17 @@ export default {
       return translatedNames;
     }
   },
+  watch: {
+    $route() {
+      if (this.$route.query.b) {
+        this.$router.replace({
+          path: this.$route.path
+        });
+      }
+    }
+  },
   methods: {
+    keyBy: _.keyBy,
     cancelBookmark() {
       this.bookmarkTitle = "";
       this.bookmarkModal = false;
@@ -415,24 +414,12 @@ export default {
         });
     }
   },
-  watch: {
-    $route() {
-      if (this.$route.query.b) {
-        this.$router.replace({
-          path: this.$route.path
-        });
-      }
-    }
-  },
   beforeRouteEnter(to, from, next) {
     const collection = "directus_files";
 
     const collectionInfo = store.state.collections[collection] || null;
 
-    if (
-      collection.startsWith("directus_") === false &&
-      collectionInfo === null
-    ) {
+    if (collection.startsWith("directus_") === false && collectionInfo === null) {
       return next(vm => (vm.notFound = true));
     }
 
@@ -471,10 +458,7 @@ export default {
 
     const collectionInfo = this.$store.state.collections[collection] || null;
 
-    if (
-      collection.startsWith("directus_") === false &&
-      collectionInfo === null
-    ) {
+    if (collection.startsWith("directus_") === false && collectionInfo === null) {
       this.notFound = true;
       return next();
     }
@@ -531,7 +515,7 @@ label.style-4 {
   }
 }
 .bookmark-name {
-  color: var(--accent);
+  color: var(--darkest-gray);
   margin-left: 5px;
   margin-top: 3px;
   font-size: 0.77em;

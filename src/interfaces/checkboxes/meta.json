@@ -1,0 +1,90 @@
+{
+  "name": "$t:checkboxes",
+  "version": "1.0.0",
+  "types": ["array"],
+  "fieldset": true,
+  "icon": "check_box",
+  "options": {
+    "choices": {
+      "name": "$t:choices",
+      "comment": "$t:choices_comment",
+      "interface": "json",
+      "type": "JSON",
+      "default": {
+        "value1": "$t:option 1",
+        "value2": "$t:option 2",
+        "value3": "$t:option 3",
+        "value4": "$t:option 4",
+        "value5": "$t:option 5",
+        "value6": "$t:option 6",
+        "value7": "$t:option 7",
+        "value8": "$t:option 8"
+      }
+    },
+    "allow_other": {
+      "name": "$t:allow_other",
+      "comment": "$t:allow_other_comment",
+      "interface": "toggle",
+      "default": false
+    },
+    "draggable": {
+      "name": "$t:draggable",
+      "comment": "$t:draggable_comment",
+      "interface": "toggle",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    "wrap": {
+      "name": "$t:wrap",
+      "comment": "$t:wrap_comment",
+      "interface": "toggle",
+      "type": "BOOLEAN",
+      "default": false
+    },
+    "formatting": {
+      "name": "$t:formatting",
+      "comment": "$t:formatting_comment",
+      "interface": "toggle",
+      "type": "BOOLEAN",
+      "default": true
+    },
+    "single": {
+      "name": "$t:single",
+      "comment": "$t:single_comment",
+      "interface": "toggle",
+      "type": "BOOLEAN",
+      "default": false
+    }
+  },
+  "translation": {
+    "en-US": {
+      "checkboxes": "Checkboxes",
+      "choices": "choices",
+      "choices_comment": "Enter JSON key value pairs with the saved value and text displayed.",
+      "wrap": "Wrap with Delimiter",
+      "wrap_comment": "Wrap the saved value in a delimiter (improves searchability).",
+      "formatting": "Show display text",
+      "formatting_comment": "Render the values as the display values",
+      "display_text": "Display Text",
+      "value": "Value",
+      "option": "Option",
+      "single": "Single Column",
+      "single_comment": "Display Checkboxes in single column",
+      "draggable": "Draggable Checkboxes",
+      "draggable_comment": "Enable sorting by draggable checkboxes",
+      "allow_other": "Allow Other",
+      "allow_other_comment": "Allow an additional custom option"
+    },
+	"fr-FR": {
+      "checkboxes": "Cases à cocher",
+      "choices": "choix",
+      "choices_comment": "Saisir des pairs de clefs et valeurs en JSON avec la valeur enregistrée et le texte affiché",
+      "wrap": "Encapsuler avec un délimiteur",
+      "wrap_comment": "Encapsuler la valeur enregistrée avec une paire de délimiteurs afin de permettre une recherche stricte sur une valeur unitaire",
+      "formatting": "Affchage du texte",
+      "formatting_comment": "Affiche les valeurs selon un format donné",
+      "display_text": "Texte affiché",
+      "value": "Valeur"
+    }
+  }
+}

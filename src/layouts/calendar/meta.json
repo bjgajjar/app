@@ -1,0 +1,41 @@
+{
+  "name": "$t:calendar",
+  "icon": "date_range",
+  "translation": {
+    "en-US": {
+      "calendar": "Calendar",
+      "fields": "Fields",
+      "today": "today",
+      "events": "Events",
+      "moreEvents": "and {amount} more...",
+      "noEvents": "no events yet!",
+      "date": "Date",
+      "time": "Time",
+      "title": "Title",
+      "color": "Color"
+    },
+    "de-DE": {
+      "calendar": "Kalendar",
+      "today": "Heute",
+      "events": "Termine",
+      "moreEvents": "und {amount} mehr...",
+      "noEvents": "noch keine Termine!",
+      "date": "Datum",
+      "time": "Zeit",
+      "title": "Titel",
+      "color": "Farbe"
+    },
+	"fr-FR": {
+      "calendar": "Calendrier",
+      "fields": "Champs",
+      "today": "aujourd'hui",
+      "events": "Evénements",
+      "moreEvents": "et {amount} plus...",
+      "noEvents": "pas encore d'événements positionnés",
+      "date": "Date",
+      "time": "Heure et minute",
+      "title": "Titre",
+      "color": "Couleur"
+    }
+  }
+}

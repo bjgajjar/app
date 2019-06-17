@@ -2,7 +2,7 @@
   <div class="v-avatar">
     <div
       :style="{
-        borderColor: `var(--${color})`,
+        // borderColor: `var(--${color})`,
         width: `${size}px`,
         height: `${size}px`
       }"
@@ -16,24 +16,15 @@
         @load="loading = false"
         @error="onImageLoadingError"
       />
-      <i
-        v-else
-        :style="{ fontSize: size / 2 + 2 + 'px' }"
-        class="material-icons"
-        >person</i
-      >
+      <v-icon v-else :style="{ fontSize: size / 2 + 2 + 'px' }" name="person" />
     </div>
-    <div
-      v-if="indicator"
-      :style="{ backgroundColor: `var(--${color})` }"
-      class="indicator"
-    />
+    <div v-if="indicator" :style="{ backgroundColor: `var(--${color})` }" class="indicator" />
   </div>
 </template>
 
 <script>
 export default {
-  name: "v-avatar",
+  name: "VAvatar",
   props: {
     src: {
       type: String,
@@ -62,15 +53,15 @@ export default {
       error: false
     };
   },
+  watch: {
+    src() {
+      this.error = false;
+    }
+  },
   methods: {
     onImageLoadingError(error) {
       this.error = error;
       this.loading = false;
-    }
-  },
-  watch: {
-    src() {
-      this.error = false;
     }
   }
 };
@@ -83,7 +74,8 @@ export default {
 
 .wrapper {
   border-radius: 50%;
-  border: 2px solid;
+  border: 2px solid var(--lighter-gray);
+  background-color: var(--white);
   height: 100%;
   width: 100%;
   position: relative;
