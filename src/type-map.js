@@ -42,6 +42,11 @@ export const datatypes = {
       fallbackInterface: "textarea"
     },
 
+    ENUM: {
+      description: "datatypes.mysql.ENUM",
+      fallbackInterface: "dropdown"
+    },
+
     // Numeric
     // -------------------------------------------------------------------------
     TINYINT: {
