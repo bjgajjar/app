@@ -657,8 +657,16 @@ export default {
       return _.cloneDeep(this.$store.state.collections);
     },
     collectionsGrouped() {
+      let restrictedCollection = [
+        "directus_collections",
+        "directus_activity",
+        "directus_fields",
+        "directus_relations"
+      ];
       const collectionNames = Object.keys(this.collections);
-      const system = collectionNames.filter(name => name.startsWith("directus_"));
+      const system = collectionNames.filter(
+        name => name.startsWith("directus_") && !restrictedCollection.includes(name)
+      );
       const user = collectionNames.filter(name => !name.startsWith("directus_"));
       return { system, user };
     },
