@@ -23,6 +23,10 @@ export default {
       default: null
     }
   },
+  created() {
+    // Emit input on created event to pass value to parent component
+    this.$emit("input", this.value);
+  },
   methods: {
     emitValue() {
       if (this.disabled) return;
