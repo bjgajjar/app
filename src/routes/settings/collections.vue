@@ -225,7 +225,8 @@ export default {
                 browse_subdued: false,
                 browse_badge: true,
                 soft_delete: false,
-                published: true
+                published: true,
+                required_fields: true
               },
               draft: {
                 name: "Draft",
@@ -235,7 +236,8 @@ export default {
                 browse_subdued: true,
                 browse_badge: true,
                 soft_delete: false,
-                published: false
+                published: false,
+                required_fields: false
               },
               deleted: {
                 name: "Deleted",
@@ -245,7 +247,8 @@ export default {
                 browse_subdued: true,
                 browse_badge: true,
                 soft_delete: true,
-                published: false
+                published: false,
+                required_fields: false
               }
             }
           }
