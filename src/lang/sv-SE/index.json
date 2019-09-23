@@ -432,6 +432,7 @@
   "update_field": "Uppdatera fält",
   "upload_exceeds_max_size": "{filename} can't be uploaded. Your server is not configured to handle uploads of this size.",
   "user_directory": "User Directory",
+  "webhook_directory": "Webhook Directory",
   "user_edit_warning": "{first_name} {last_name} is editing this item too. Please coordinate with them so you don't lose your changes.",
   "validation": "Validation",
   "value": "Värde",

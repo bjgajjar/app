@@ -432,6 +432,7 @@
   "update_field": "Mettre à jour un champ ",
   "upload_exceeds_max_size": "{filename} ne peut être téléversé. Votre serveur n’est pas configuré afin de gérer des téléversements de cette taille.",
   "user_directory": "Utilisateurs",
+  "webhook_directory": "Annuaire Webhook",
   "user_edit_warning": "{first_name} {last_name} modifie également cet élément. Veuillez vous coordonner afin de ne pas perdre vos modifications.",
   "validation": "Validation",
   "value": "Valeur",

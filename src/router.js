@@ -141,6 +141,19 @@ const router = new Router({
       }
     },
     {
+      path: "/collections/directus_webhooks",
+      component: Items,
+      alias: "/webhooks"
+    },
+    {
+      path: "/collections/directus_webhooks/:primaryKey",
+      component: Item,
+      alias: "/webhooks/:primaryKey",
+      meta: {
+        infoSidebarWidth: "wide"
+      }
+    },
+    {
       path: "/collections/directus_users",
       component: Items,
       alias: "/users"

@@ -432,6 +432,7 @@
   "update_field": "更新字段",
   "upload_exceeds_max_size": "{filename} can't be uploaded. Your server is not configured to handle uploads of this size.",
   "user_directory": "用户列表",
+  "webhook_directory": "网络挂钩目录",
   "user_edit_warning": "{first_name} {last_name}也正在编辑此项目。请与他们协调，以免丢失您的更改。",
   "validation": "验证",
   "value": "值",

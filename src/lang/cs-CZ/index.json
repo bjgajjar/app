@@ -432,6 +432,7 @@
   "update_field": "Upravit pole",
   "upload_exceeds_max_size": "{filename} nemůže být nahrát. Váš server není nakonfigurován pro zpracování takto velkých souborů.",
   "user_directory": "Uživatelé",
+  "webhook_directory": "Adresář Webhook",
   "user_edit_warning": "{first_name} {last_name} také upravuje tuto položku. Prosím, dejte si pozor, abyste si nepřepsali své změny.",
   "validation": "Validace",
   "value": "Hodnota",

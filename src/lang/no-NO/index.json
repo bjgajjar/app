@@ -432,6 +432,7 @@
   "update_field": "Oppdater felt",
   "upload_exceeds_max_size": "{filename} kan ikke lastes opp. Serveren din er ikke konfigurert for å ta i mot så store filer.",
   "user_directory": "Brukeroversikt",
+  "webhook_directory": "Webhook katalog",
   "user_edit_warning": "{first_name} {last_name} redigerer samtidig på denne. Vær varsom og koordiner endringene for å unngå å miste noe.",
   "validation": "Validering",
   "value": "Verdi",

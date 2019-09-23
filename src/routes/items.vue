@@ -178,6 +178,14 @@ export default {
           }
         ];
       }
+      if (this.collection === "directus_webhooks") {
+        return [
+          {
+            name: this.$t("webhook_directory"),
+            path: "/webhooks"
+          }
+        ];
+      }
 
       if (this.collection === "directus_files") {
         return [

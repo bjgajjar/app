@@ -432,6 +432,7 @@
   "update_field": "Campo di aggiornamento",
   "upload_exceeds_max_size": "{filename} non può essere caricato. Il tuo server non è configurato per gestire i caricamenti di questa dimensione.",
   "user_directory": "Elenco utenti",
+  "webhook_directory": "Directory Webhook",
   "user_edit_warning": "{first_name} {last_name} sta modificando anche questa voce. Si prega di coordinare con lui in modo da non perdere le modifiche.",
   "validation": "Validazione",
   "value": "Valore",

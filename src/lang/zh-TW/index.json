@@ -432,6 +432,7 @@
   "update_field": "更新欄位",
   "upload_exceeds_max_size": "{filename} can't be uploaded. Your server is not configured to handle uploads of this size.",
   "user_directory": "使用者目錄",
+  "webhook_directory": "網路掛鉤目錄",
   "user_edit_warning": "{first_name} {last_name} is editing this item too. Please coordinate with them so you don't lose your changes.",
   "validation": "驗證",
   "value": "值",

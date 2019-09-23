@@ -432,6 +432,7 @@
   "update_field": "Kemaskini Medan",
   "upload_exceeds_max_size": "{filename} tidak boleh dimuat naik. Pelayan anda tidak dikonfigurasi untuk mengendalikan saiz muat naik ini.",
   "user_directory": "Direktori pengguna",
+  "webhook_directory": "Direktori webhook",
   "user_edit_warning": "{first_name} {last_name} sedang mengedit item ini. Sila berhubung dengan mereka supaya anda tidak kehilangan perubahan anda.",
   "validation": "Pengesahan",
   "value": "Nilai",

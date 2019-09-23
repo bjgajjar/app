@@ -328,6 +328,19 @@ export default {
         ];
       }
 
+      if (this.collection === "directus_webhooks") {
+        return [
+          {
+            name: this.$t("webhook_directory"),
+            path: "/webhooks"
+          },
+          {
+            name: this.newItem ? this.$t("creating_item") : this.$t("editing_item"),
+            path: this.$route.path
+          }
+        ];
+      }
+
       if (this.collection === "directus_files") {
         return [
           {

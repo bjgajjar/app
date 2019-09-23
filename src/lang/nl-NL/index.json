@@ -432,6 +432,7 @@
   "update_field": "Update veld",
   "upload_exceeds_max_size": "{filename} kan niet geüpload worden. De server kan het bestandsformaat niet aan.",
   "user_directory": "Gebruikers",
+  "webhook_directory": "Webhook-map",
   "user_edit_warning": "{first_name} {last_name} is dit item ook aan het wijzigen.",
   "validation": "Validatie",
   "value": "Waarde",

@@ -432,6 +432,7 @@
   "update_field": "Aktualizuj pole",
   "upload_exceeds_max_size": "{filename} nie może zostać wgrany. Twój serwer nie jest odpowiednio skonfigurowany, by mój przyjmować pliki tej wielkości.",
   "user_directory": "Katalog użytkownika",
+  "webhook_directory": "Katalog elementu webhook",
   "user_edit_warning": "{first_name} {last_name} również aktualnie dokonuje edycji tego element. Proszę skoordynuj z nim pracę, by nie utracić swoich zmian.",
   "validation": "Walidacja",
   "value": "Wartość",

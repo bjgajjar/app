@@ -432,6 +432,7 @@
   "update_field": "Atualizar Campo",
   "upload_exceeds_max_size": "{filename} não pode ser carregado. Seu servidor não está configurado para manipular envios deste tamanho.",
   "user_directory": "Usuários",
+  "webhook_directory": "Diretório webhook",
   "user_edit_warning": "{first_name} {last_name} está editando este item também. Por favor coordenem-se para não perder alterações.",
   "validation": "Validação",
   "value": "Valor",

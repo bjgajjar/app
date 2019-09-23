@@ -96,6 +96,16 @@ export default {
         });
       }
 
+      
+      if (this.permissions.directus_webhooks.read !== "none") {
+        links.push({
+          path: "/webhooks",
+          name: this.$t("webhook_directory"),
+          target: "_self",
+          icon: "language"
+        });
+      }
+
       if (
         this.permissions.directus_users.read !== "none" ||
         this.permissions.directus_users.read !== "mine"

@@ -432,6 +432,7 @@
   "update_field": "Feld wird aktualisiert",
   "upload_exceeds_max_size": "{filename} konnte nicht hochgeladen werden. Die Serverkonfiguration erlaubt Uploads dieser Größe nicht.",
   "user_directory": "Benutzerverzeichnis",
+  "webhook_directory": "Webhook-Verzeichnis",
   "user_edit_warning": "{first_name} {last_name} bearbeitet dieses Element ebenfalls. Bitte sprecht Euch ab, damit deine Änderungen nicht verloren gehen.",
   "validation": "Validierung",
   "value": "Wert",

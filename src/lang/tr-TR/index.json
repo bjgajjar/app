@@ -432,6 +432,7 @@
   "update_field": "Alanı Güncelle",
   "upload_exceeds_max_size": "{filename} karşıya yüklenemedi. Sunucu bu büyüklükteki dosyaları karşıya yüklemek için konfigüre edilmedi.",
   "user_directory": "Kullanıcı Listesi",
+  "webhook_directory": "Webhook Rehberi",
   "user_edit_warning": "Bu öge aynı anda {first_name} {last_name} tarafından da düzenleniyor. Lütfen kendisi ile koordineli olarak çalışın ve veri kaybına uğramayın.",
   "validation": "Doğrulama",
   "value": "Değer",
