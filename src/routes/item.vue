@@ -192,7 +192,9 @@ function getFieldsQuery(collection) {
         (fieldInfo.type && fieldInfo.type.toLowerCase()) === "o2m" &&
         store.getters.o2m(collection, field).junction != null
       ) {
-        return field.endsWith(".*.*.*") ? field : field + ".*.*.*";
+        return field.endsWith("." + store.state.settings.values.relational_data_limit)
+          ? field
+          : field + "." + store.state.settings.values.relational_data_limit;
       }
 
       if (
@@ -202,7 +204,9 @@ function getFieldsQuery(collection) {
         (fieldInfo.type && fieldInfo.type.toLowerCase()) === "translation" ||
         (fieldInfo.type && fieldInfo.type.toLowerCase()) === "file"
       ) {
-        return field.endsWith(".*.*.*") ? field : field + ".*.*.*";
+        return field.endsWith("." + store.state.settings.values.relational_data_limit)
+          ? field
+          : field + "." + store.state.settings.values.relational_data_limit;
       }
 
       return field;

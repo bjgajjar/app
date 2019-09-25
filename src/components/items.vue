@@ -393,9 +393,8 @@ export default {
       Object.assign(params, this.viewQuery);
 
       if (this.viewQuery && this.viewQuery.fields) {
-        if (params.fields instanceof Array == false)
-          params.fields = params.fields.split(",");
-          
+        if (params.fields instanceof Array == false) params.fields = params.fields.split(",");
+
         params.fields = params.fields.map(field => `${field}.*`);
 
         if (!params.fields.includes(this.primaryKeyField)) {
@@ -404,7 +403,7 @@ export default {
 
         params.fields = params.fields.join(",");
       } else {
-        params.fields = "*.*";
+        params.fields = this.$store.state.settings.values.relational_data_limit;
       }
 
       if (this.searchQuery) {
