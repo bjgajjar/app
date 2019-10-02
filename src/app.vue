@@ -66,7 +66,7 @@ export default {
   computed: {
     ...mapState({
       color: state =>
-        state.settings.values.color ||
+        state.settings.values.project_color ||
         getComputedStyle(document.documentElement)
           .getPropertyValue("--brand")
           .trim(),
