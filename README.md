@@ -32,7 +32,7 @@ Directus is an open-source suite of software that provides an instant API wrappe
 
 * **[Directus API](https://github.com/directus/api)** — Wraps any new or existing SQL database with RESTful JSON endpoints for connecting content anywhere: websites, native apps, wearables, IoT devices, kiosks, or anything else!
 * **[Directus Admin App](https://github.com/directus/app)** — A friendly admin interface built with Vue.js that works in conjunction with our API to allow non-technical users to manage database content and digital assets.
-* **[Directus Suite](https://github.com/directus/directus)** A package that combines our API, Admin App, and all dependencies for quick and easy installation on most servers.
+* **[Directus Suite](https://github.com/directus/directus)** A package that combines our API, admin app, and all dependencies for quick and easy installation on most servers.
 
 <p>&nbsp;</p>
 
@@ -131,10 +131,14 @@ Directus is a GPLv3-licensed open source project with development made possible 
 
 ### Contributing
 
-We love pull-requests! To work on Directus you'll need to install it locally from source by following the instructions below. Submit all pull-requests to the `master` branch of our `api` and `app` repositories.
+We love pull-requests! To work on Directus you'll need to install it locally from source by following the instructions below. Submit all pull-requests to the `develop` branch of our `api` and `app` repositories.
 
 * [Setup API Development Environment](https://docs.directus.io/advanced/source.html#api-source)
 * [Setup App Development Environment](https://docs.directus.io/advanced/source.html#application-source)
+
+For working on the App you can also use a one-click browser based dev environment:
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/directus/app)
 
 ### Sponsors
 

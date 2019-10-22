@@ -22,7 +22,7 @@
       }"
       :class="{ attention: alert, 'no-bg': noBackground, 'has-bg': hoverColor }"
       class="button"
-      :disabled="disabled"
+      :disabled="disabled || loading"
       :to="to || null"
       @click="!to ? $emit('click', $event) : null"
     >

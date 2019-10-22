@@ -1,12 +1,12 @@
 <template>
   <div class="interface-toggle-icon">
     <input
-      id="icon-toggle"
+      :id="randomID"
       type="checkbox"
       :disabled="readonly"
       @change="updateValue($event.target.checked)"
     />
-    <label for="icon-toggle" :style="{ color: `var(--${colorChange})` }">
+    <label :for="randomID" :style="{ color: `var(--${colorChange})` }">
       <v-icon :name="icon" />
       <span>{{ textChange }}</span>
     </label>
@@ -15,6 +15,7 @@
 
 <script>
 import mixin from "@directus/extension-toolkit/mixins/interface";
+import shortid from "shortid";
 
 export default {
   name: "InterfaceToggleIcon",
@@ -28,6 +29,9 @@ export default {
     },
     textChange() {
       return this.value ? this.options.textActive : this.options.textInactive;
+    },
+    randomID() {
+      return shortid.generate();
     }
   },
   methods: {

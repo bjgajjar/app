@@ -1,5 +1,5 @@
 <template>
-  <div v-if="hydratingError" class="error">
+  <div v-if="localeLoaded && hydratingError" class="error">
     <v-error
       icon="warning"
       :title="$t('server_error')"
@@ -13,7 +13,7 @@
     </p>
   </div>
 
-  <div v-else-if="extensionError" class="error">
+  <div v-else-if="localeLoaded && extensionError" class="error">
     <v-error
       icon="extension"
       :title="$t('extensions_missing')"
@@ -23,7 +23,7 @@
   </div>
 
   <div
-    v-else-if="!publicRoute"
+    v-else-if="localeLoaded && !publicRoute"
     :style="{
       '--brand': `var(--${color})`
     }"
@@ -40,7 +40,7 @@
     <v-notification />
   </div>
 
-  <div v-else class="public">
+  <div v-else-if="localeLoaded" class="public">
     <router-view />
     <v-notification />
   </div>
@@ -52,6 +52,7 @@ import VError from "./components/error.vue";
 import { TOGGLE_NAV } from "./store/mutation-types";
 import VNavSidebar from "./components/sidebars/nav-sidebar/nav-sidebar.vue";
 import VNotification from "./components/notifications/notifications.vue";
+import { loadLanguageAsync, availableLanguages } from "./lang";
 
 export default {
   name: "Directus",
@@ -63,10 +64,15 @@ export default {
     VNavSidebar,
     VNotification
   },
+  data() {
+    return {
+      localeLoaded: false
+    };
+  },
   computed: {
     ...mapState({
       color: state =>
-        state.settings.values.color ||
+        state.settings.values.project_color ||
         getComputedStyle(document.documentElement)
           .getPropertyValue("--brand")
           .trim(),
@@ -113,6 +119,39 @@ export default {
   },
   created() {
     this.bodyClass();
+
+    const shouldLoadLocale =
+      window.__DirectusConfig__ &&
+      window.__DirectusConfig__.defaultLocale &&
+      window.__DirectusConfig__.defaultLocale !== "en-US";
+
+    if (shouldLoadLocale) {
+      let { defaultLocale } = window.__DirectusConfig__;
+
+      if (defaultLocale === "auto") {
+        let locale;
+
+        if (navigator.languages != undefined) {
+          locale = navigator.languages[0];
+        } else {
+          locale = navigator.language;
+        }
+
+        if (locale.length !== 5) {
+          // try finding a locale that fits the current language
+          const locales = Object.keys(availableLanguages);
+          locale = locales.find(l => l.startsWith(locale)) || "en-US";
+        }
+
+        defaultLocale = locale;
+      }
+
+      loadLanguageAsync(defaultLocale).then(() => {
+        this.localeLoaded = true;
+      });
+    } else {
+      this.localeLoaded = true;
+    }
   },
   methods: {
     bodyClass() {

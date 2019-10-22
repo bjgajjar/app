@@ -385,6 +385,7 @@ export default {
       img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
       event.dataTransfer.setDragImage(img, 0, 0);
       event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", null); //Just to enable/make the drag event to be triggered in the Firefox browser
     },
     initWidths() {
       const widths = {};

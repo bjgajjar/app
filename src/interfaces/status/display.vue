@@ -33,8 +33,8 @@ export default {
   padding: 5px 10px;
   display: block;
   cursor: default;
-  width: max-content;
-  max-width: 120px;
+  max-width: max-content;
+  text-overflow: ellipsis;
 }
 
 .simple {

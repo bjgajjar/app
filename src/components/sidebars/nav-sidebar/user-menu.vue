@@ -42,7 +42,7 @@ export default {
   },
   computed: {
     avatarURL() {
-      if (this.$store.state.currentUser.avatar) {
+      if (this.$store.state.currentUser.avatar && this.$store.state.currentUser.avatar.data) {
         return this.$store.state.currentUser.avatar.data.full_url;
       }
 

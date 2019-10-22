@@ -1,6 +1,6 @@
 {
-  "about_directus": "About Directus",
-  "activity": "Activity",
+  "about_directus": "אודות Directus",
+  "activity": "פעילות",
   "activity_log": "Activity Log",
   "activity_outside_directus": "Item created outside of Directus",
   "add_field_filter": "Add a field filter",
@@ -47,7 +47,7 @@
   "collection_removed": "{collection} Collection Removed",
   "collection_updated": "{collection} Collection Updated",
   "collections": "Collections",
-  "collections-directus_activity": "Activity",
+  "collections-directus_activity": "פעילות",
   "collections-directus_files": "Files",
   "collections-directus_users": "Users",
   "collections_and_fields": "Collection & Fields",

@@ -6,7 +6,7 @@
       :key="key"
       :name="name"
       :value="key"
-      :disabled="readonly"
+      :disabled="options.readonly ? options.readonly : readonly"
       :model-value="String(value)"
       :label="options.label"
       :checked="key == value"
@@ -38,11 +38,16 @@ export default {
       }));
     },
     optionValues() {
-      const allStatuses = Object.keys(this.statusMapping);
+      const allStatuses = this.statusMapping;
+      const blacklist = this.blacklist;
 
-      const allowedStatuses = _.differenceWith(allStatuses, this.blacklist, _.isEqual);
+      _.forEach(allStatuses, function(value) {
+        if (blacklist.includes(value.value)) {
+          value.readonly = true;
+        }
+      });
 
-      return _.pick(this.statusMapping, allowedStatuses);
+      return allStatuses;
     },
     blacklist() {
       if (!this.permissions) return;

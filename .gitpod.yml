@@ -1,0 +1,12 @@
+tasks:
+  - command: clear
+  - init: npm install 
+    command: npm run dev
+
+ports:
+  - port: 8080
+    onOpen: open-preview
+
+vscode:
+  extensions:
+    - jcbuisson.vue@0.1.5:iY3UUCX2mmoIw5ODWkEcyw==

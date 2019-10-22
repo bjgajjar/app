@@ -26,7 +26,11 @@
     // like /admin, this will cause the routes to be wrong (eg /collection instead
     // of /admin/collections). To combat this, set the routerBaseUrl to the path
     // you're serving the application from
-    routerBaseUrl: "/"
+    routerBaseUrl: "/",
+
+    // Allows you to set the default locale for your installation, just make
+    // sure the value is a valid (supported) app translation
+    defaultLocale: "en-US"
   };
 
   window.__DirectusConfig__ = config;

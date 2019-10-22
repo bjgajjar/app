@@ -453,7 +453,9 @@ export default {
 
               const type = fieldInfo.type.toLowerCase();
 
-              if (type === "json") {
+              if (type === "json" || type === "translation" || type === "array") {
+                delta[key] = after[key];
+              } else if (type === "translation") {
                 delta[key] = after[key];
               }
             });
@@ -507,7 +509,6 @@ export default {
           $delete: true
         };
       });
-
       this.$emit("input", [...newValue, ...deletedRows]);
     }
   }

@@ -67,8 +67,8 @@ export default {
   methods: {
     initChoices() {
       const optionChoices = _.clone(this.options.choices);
-
-      let choices = this.value
+      const initialValues = this.value ? this.value : [];
+      let choices = initialValues
         .filter(key => key) // filter out empty strings
         .map(key => {
           return {
@@ -89,7 +89,7 @@ export default {
 
       const nonChecked = Object.keys(optionChoices)
         .filter(key => {
-          return this.value.includes(key) === false;
+          return initialValues.includes(key) === false;
         })
         .map(key => {
           return {

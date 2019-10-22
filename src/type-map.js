@@ -274,6 +274,13 @@ export default {
       default: "VARCHAR"
     }
   },
+  user: {
+    description: "fieldtypes.user",
+    mysql: {
+      datatypes: ["INT"],
+      default: "INT"
+    }
+  },
   user_created: {
     description: "fieldtypes.user_created",
     mysql: {

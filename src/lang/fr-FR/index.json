@@ -202,7 +202,7 @@
     "status": "Champ système utilisé pour la gestion de la publication",
     "string": "Tout texte, chiffres, espaces ou symboles ; défini et limité par sa longueur (nombre de caractères)",
     "time": "heure, ex : 14:09:22",
-    "translation": "Specific to translation interfaces, this o2m stores multi-lingual content",
+    "translation": "Spécifique aux interfaces de traduction, cette relation one-to-many (o2m) stocke des contenus multilingues",
     "user_created": "Champ système permettant de suivre l’utilisateur qui a créé un élément, utilisé par les révisions",
     "user_updated": "Champ système permettant de suivre l’utilisateur qui a mis à jour un élément, utilisé par les révisions",
     "uuid": "Identifiant universel unique"
