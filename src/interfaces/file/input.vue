@@ -71,7 +71,6 @@
             text: $t('done')
           }
         }"
-        action-required
         @close="existing = false"
         @done="existing = false"
       >
